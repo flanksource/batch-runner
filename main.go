@@ -85,11 +85,12 @@ func run(cmd *cobra.Command, args []string) {
 				continue
 			}
 
+			logger.Infof("Received message: %s: %v", msg.LoggableID)
+
 			ctx := commonsContext.NewContext(context.TODO())
-			log := logger.StandardLogger().Named(fmt.Sprintf("msg-%s", msg.LoggableID))
+			log := logger.StandardLogger().Named(msg.LoggableID)
 			log.SetLogLevel(logger.Trace4)
 			ctx.Logger = log
-			ctx.Infof("Received message: %s", msg.LoggableID)
 
 			// Decode base64
 			decoded, err := base64.StdEncoding.DecodeString(string(msg.Body))
