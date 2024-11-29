@@ -1,0 +1,33 @@
+pod:
+  apiversion: v1
+  kind: Pod
+  metadata:
+    name: "batch-{{.params.a}}"
+    namespace: default
+    annotations:
+      msg: "{{.msg | toJSON}}"
+  spec:
+    containers:
+          - name: podinfo
+            image: ghcr.io/stefanprodan/podinfo:5.1.4
+            imagePullPolicy: IfNotPresent
+            ports:
+              - name: http
+                containerPort: 9898
+                protocol: TCP
+            command:
+              - ./podinfo
+              - --port=9898
+              - --port-metrics=9797
+              - --grpc-port=9999
+              - --grpc-service-name=podinfo
+              - --level=info
+              - --random-delay=false
+              - --random-error=false
+            env:
+              - name: PODINFO_UI_COLOR
+                value: "#34577c"
+sqs:
+  queue: test-batch-runner
+  account: 765618022540
+  region: eu-west-1
