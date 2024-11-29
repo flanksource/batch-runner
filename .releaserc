@@ -1,0 +1,30 @@
+branches:
+  - name: main
+plugins:
+  - - "@semantic-release/commit-analyzer"
+    - releaseRules:
+        - { type: doc, scope: README, release: patch }
+        - { type: fix, release: patch }
+        - { type: chore, release: patch }
+        - { type: refactor, release: patch }
+        - { type: feat, release: patch }
+        - { type: ci, release: false }
+        - { type: style, release: false }
+      parserOpts:
+        noteKeywords:
+          - MAJOR RELEASE
+  - "@semantic-release/release-notes-generator"
+  - - "@semantic-release/github"
+    - assets:
+        - path: ./.bin/batch-runner-amd64
+          name: batch-runner-amd64
+        - path: ./.bin/batch-runner.exe
+          name: batch-runner.exe
+        - path: ./.bin/batch-runner_osx-amd64
+          name: batch-runner_osx-amd64
+        - path: ./.bin/batch-runner_osx-arm64
+          name: batch-runner_osx-arm64
+
+      # From: https://github.com/semantic-release/github/pull/487#issuecomment-1486298997
+      successComment: false
+      failTitle: false
