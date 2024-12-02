@@ -72,7 +72,7 @@ lint:
 
 .PHONY: build
 build:
-	go build -o ./.bin/$(NAME) -ldflags "-X \"main.version=$(VERSION_TAG)\"" .
+	go build -o $(NAME) -ldflags "-X \"main.version=$(VERSION_TAG)\"" .
 
 .PHONY: install
 install:
