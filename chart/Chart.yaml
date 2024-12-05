@@ -1,0 +1,6 @@
+apiVersion: v2
+name: batch-runner
+description: A Helm chart for creating pods or jobs for every message in a queue
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

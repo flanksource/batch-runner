@@ -1,0 +1,9 @@
+replicaCount: 1
+image:
+  repository: flanksource/batch-runner
+  tag: latest
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  name: batch-runner-sa
