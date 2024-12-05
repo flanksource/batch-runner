@@ -51,7 +51,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.27.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.31.0 // indirect
 	github.com/aws/smithy-go v1.21.0 // indirect
-	github.com/cert-manager/cert-manager v1.16.1 // indirect
+	github.com/cert-manager/cert-manager v1.16.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/distribution/reference v0.5.0 // indirect
 	github.com/eapache/go-resiliency v1.7.0 // indirect
