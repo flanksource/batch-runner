@@ -1,6 +1,6 @@
-job:
-  apiversion: batch/v1
-  kind: Job
+pod:
+  apiversion: v1
+  kind: Pod
   metadata:
     name: "batch-{{.params.a}}"
     namespace: default
@@ -29,5 +29,5 @@ job:
                 value: "#34577c"
 sqs:
   queue: test-batch-runner
-  account: 12345
+  account: 1234
   region: eu-west-1

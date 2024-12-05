@@ -6,11 +6,13 @@ import (
 	"os"
 	"strings"
 
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 )
 
 type Config struct {
-	Pod      corev1.Pod    `json:"pod"`
+	Pod      *corev1.Pod   `json:"pod,omitempty"`
+	Job      *batchv1.Job  `json:"job,omitempty"`
 	SQS      *SQSConfig    `json:"sqs"`
 	PubSub   *PubSubConfig `json:"pubsub"`
 	RabbitMQ *RabbitConfig `json:"rabbitmq"`

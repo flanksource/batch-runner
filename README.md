@@ -1,5 +1,5 @@
 
-# Queue Consumer
+# Batch Runner
 
 A service that consumes messages from various queue implementations and creates Kubernetes pods based on the message content.
 
@@ -25,9 +25,30 @@ A service that consumes messages from various queue implementations and creates 
 Create a `config.yaml` file with the following structure:
 
  ```yaml
- pod: # Kubernetes pod configuration
-   # Any valid pod spec fields
+ # can specify either pod or job - not both
+ pod:
+  apiversion: v1
+  kind: Pod
+  metadata:
+    name: "batch-{{.params.a}}"
+    namespace: default
+    annotations:
+      msg: "{{.msg | toJSON}}"
+  spec:
+    containers:
+    #...
 
+ job:
+  apiversion: batch/v1
+  kind: Job
+  metadata:
+    name: "batch-{{.params.a}}"
+    namespace: default
+    annotations:
+      msg: "{{.msg | toJSON}}"
+  spec:
+    containers:
+    #...
  sqs: # AWS SQS configuration
    queue: string    # Queue name
    region: string   # AWS region
@@ -65,7 +86,7 @@ Create a `config.yaml` file with the following structure:
 ## Usage
 
 
- Run the consumer `queue-consumer`
+ Run the consumer `batch-runner`
 
 
 The service will:

@@ -85,12 +85,10 @@ func run(cmd *cobra.Command, args []string) {
 				continue
 			}
 
-			logger.Infof("Received message: %s: %v", msg.LoggableID)
-
 			ctx := commonsContext.NewContext(context.TODO())
-			log := logger.StandardLogger().Named(msg.LoggableID)
-			log.SetLogLevel(logger.Trace4)
-			ctx.Logger = log
+			ctx.Logger = logger.StandardLogger().Named(msg.LoggableID)
+
+			ctx.Infof("Received message: %v", msg.Metadata)
 
 			// Decode base64
 			decoded, err := base64.StdEncoding.DecodeString(string(msg.Body))
@@ -106,48 +104,65 @@ func run(cmd *cobra.Command, args []string) {
 				continue
 			}
 
-			ctx.Infof(logger.Pretty(data))
+			ctx.Debugf("input=%s", logger.Pretty(data))
 
 			data["msg"] = msg
 
 			templater := gomplate.StructTemplater{
-
 				Values:         data,
 				DelimSets:      []gomplate.Delims{{Left: "{{", Right: "}}"}},
 				ValueFunctions: true,
 			}
 
-			var pod = config.Pod
+			if config.Pod != nil {
+				var pod = *config.Pod
 
-			// Walk the Pod and apply the template to each string value
+				if err := templater.Walk(&pod); err != nil {
+					logger.Errorf("Error templating Pod: %v", err)
+					msg.Ack()
+					continue
+				}
 
-			if err := templater.Walk(&pod); err != nil {
-				logger.Errorf("Error templating Pod: %v", err)
+				ctx.Tracef("pod=%s", logger.Pretty(pod))
+
+				p, err := client.CoreV1().Pods(pod.Namespace).Create(ctx, &pod, metav1.CreateOptions{})
+				if err != nil {
+					ctx.Errorf("Error creating Pod: %v", err)
+					// this could be a temp issue
+					if msg.Nackable() {
+						msg.Nack()
+					}
+					continue
+				}
+				ctx.Infof("Created %s", p.UID)
 				msg.Ack()
-				continue
-			}
+			} else if config.Job != nil {
+				var job = *config.Job
 
-			// // remarshal the pod to v1 type
-			// var podv1 corev1.Pod
-			// podJSON, err := json.Marshal(pod)
+				if err := templater.Walk(&job); err != nil {
+					logger.Errorf("Error templating Pod: %v", err)
+					msg.Ack()
+					continue
+				}
 
-			// if err := json.Unmarshal(podJSON, &podv1); err != nil {
-			// 	logger.Errorf("Error unmarshaling Pod: %v", err)
-			// 	msg.Ack()
-			// 	continue
-			// }
+				ctx.Tracef("job=%s", logger.Pretty(job))
 
-			ctx.Infof(logger.Pretty(pod))
-
-			p, err := client.CoreV1().Pods(pod.Namespace).Create(ctx, &pod, metav1.CreateOptions{})
-			ctx.Infof("Created %s", p.UID)
-
-			if err != nil {
-				ctx.Infof("Error creating Pod: %v", err)
+				p, err := client.BatchV1().Jobs(job.Namespace).Create(ctx, &job, metav1.CreateOptions{})
+				if err != nil {
+					ctx.Errorf("Error creating job: %v", err)
+					// this could be a temp issue
+					if msg.Nackable() {
+						msg.Nack()
+					}
+					continue
+				}
+				ctx.Infof("Created %s", p.UID)
 				msg.Ack()
+			} else {
+				ctx.Errorf("Invalid config, must specify either a job or a pod")
 			}
-
 		}
+
 	}()
 	// Wait for signal
 	<-sigChan
