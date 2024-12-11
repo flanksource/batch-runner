@@ -7,3 +7,9 @@ image:
 serviceAccount:
   create: true
   name: batch-runner-sa
+
+config:
+  configMap:
+    enabled: false
+    name: ""
+    key: ""
