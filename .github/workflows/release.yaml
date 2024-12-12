@@ -100,7 +100,7 @@ jobs:
       - name: Update chart repo
         run: |
           cd charts
-          cp ../batch-runner-*.tgz ./
+          cp ../batchRunner-*.tgz ./
           helm repo index --merge index.yaml .
       - name: Push changes to chart repo
         uses: stefanzweifel/git-auto-commit-action@3ea6ae190baf489ba007f7c92608f33ce20ef04a # v4.16.0
