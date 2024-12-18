@@ -22,7 +22,7 @@ spec:
           {{- if .Values.config.configMap.enabled }}
           volumeMounts:
             - name: config-volume
-              mountPath: /app
+              mountPath: /app/config.yaml
               subPath: {{ .Values.config.configMap.key}}
               readOnly: true
           {{- end }}
