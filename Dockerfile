@@ -11,4 +11,10 @@ COPY ./ ./
 
 RUN make build
 
+FROM debian:bookworm
+
+
+COPY --from=builder /app/batch-runner /app/batch-runner
+
+
 ENTRYPOINT ["/app/batch-runner"]
