@@ -15,6 +15,12 @@ FROM debian:bookworm
 
 WORKDIR /app
 
+RUN --mount=type=cache,target=/var/lib/apt \
+    --mount=type=cache,target=/var/cache/apt \
+    apt-get update  && \
+    apt-get install --no-install-recommends -y  curl less locales ca-certificates
+
+
 COPY --from=builder /app/batch-runner /app/batch-runner
 
 ENTRYPOINT ["/app/batch-runner"]
