@@ -78,8 +78,6 @@ build:
 install:
 	cp ./.bin/$(NAME) /usr/local/bin/
 
-test: $(ENVTEST)
-	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -i --bin-dir $(LOCALBIN) -p path)" go test -v ./...
 
 LOCALBIN = $(shell pwd)/.bin
 ENVTEST ?= $(LOCALBIN)/setup-envtest
@@ -93,3 +91,5 @@ $(LOCALBIN):
 $(ENVTEST): $(LOCALBIN)
 	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
 
+test: $(ENVTEST)
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use --bin-dir $(LOCALBIN) -p path)" go test -v ./...
