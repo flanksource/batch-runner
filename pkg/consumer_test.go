@@ -29,6 +29,7 @@ func TestSNSToSQSIntegration(t *testing.T) {
 
 	// start testEnv
 	restConfig, err := testEnv.Start()
+	Expect(err).To(BeNil())
 
 	defer testEnv.Stop()
 
