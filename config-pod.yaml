@@ -1,33 +1,38 @@
+logLevel: debug
 pod:
   apiversion: v1
   kind: Pod
   metadata:
-    name: "batch-{{.params.a}}"
+    name: "batch-{{.a}}"
     namespace: default
     annotations:
-      msg: "{{.msg | toJSON}}"
+      msg: "{{. | toJSON}}"
   spec:
     containers:
-          - name: podinfo
-            image: ghcr.io/stefanprodan/podinfo:5.1.4
-            imagePullPolicy: IfNotPresent
-            ports:
-              - name: http
-                containerPort: 9898
-                protocol: TCP
-            command:
-              - ./podinfo
-              - --port=9898
-              - --port-metrics=9797
-              - --grpc-port=9999
-              - --grpc-service-name=podinfo
-              - --level=info
-              - --random-delay=false
-              - --random-error=false
-            env:
-              - name: PODINFO_UI_COLOR
-                value: "#34577c"
+      - name: podinfo
+        image: ghcr.io/stefanprodan/podinfo:5.1.4
+        imagePullPolicy: IfNotPresent
+        ports:
+          - name: http
+            containerPort: 9898
+            protocol: TCP
+        command:
+          - ./podinfo
+          - --port=9898
+          - --port-metrics=9797
+          - --grpc-port=9999
+          - --grpc-service-name=podinfo
+          - --level=info
+          - --random-delay=false
+          - --random-error=false
+        env:
+          - name: PODINFO_UI_COLOR
+            value: "#34577c"
 sqs:
-  queue: test-batch-runner
-  account: 1234
-  region: eu-west-1
+  queue: arn:aws:sqs:us-east-1:000000000000:test-batch-runner
+  endpoint: http://localhost:4566
+  accessKey:
+    value: test
+  secretKey:
+    value: test
+  region: us-east-1

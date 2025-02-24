@@ -1,10 +1,14 @@
 package pkg
 
 import (
+	"errors"
+	"net/http"
 	"os"
 
 	"github.com/flanksource/commons/files"
 	"github.com/flanksource/commons/logger"
+	kerrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/util/net"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -31,6 +35,26 @@ func NewClient() (kubernetes.Interface, *rest.Config, error) {
 	} else {
 		return nil, nil, err
 	}
+}
+
+func IsRetryableError(err error) bool {
+	if kerrors.IsBadRequest(err) ||
+		kerrors.IsNotAcceptable(err) ||
+		kerrors.IsForbidden(err) ||
+		kerrors.IsUnauthorized(err) ||
+		kerrors.IsRequestEntityTooLargeError(err) {
+		return false
+	}
+
+	if errors.Is(err, http.ErrHandlerTimeout) ||
+		errors.Is(err, http.ErrServerClosed) ||
+		net.IsConnectionRefused(err) ||
+		net.IsConnectionReset(err) ||
+		net.IsProbableEOF(err) ||
+		net.IsTimeout(err) {
+		return true
+	}
+	return false
 }
 
 func NewClientWithConfig(kubeConfig []byte) (kubernetes.Interface, *rest.Config, error) {
