@@ -23,7 +23,7 @@ jobs:
       - name: Install Go
         uses: buildjet/setup-go@v5
         with:
-          go-version: v1.22.x
+          go-version: v1.23.x
       - uses: buildjet/cache@v4
         with:
           path: |
@@ -49,7 +49,6 @@ jobs:
     needs: semantic-release
     runs-on: ubuntu-latest
     steps:
-
       - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
 
       - name: Publish to DockerHub Registry
@@ -61,7 +60,6 @@ jobs:
           snapshot: true
           dockerfile: Dockerfile
           tags: "latest,v${{ needs.semantic-release.outputs.release-version }}"
-
 
   helm:
     runs-on: ubuntu-latest
@@ -108,4 +106,3 @@ jobs:
           commit_message: "Release ${{ needs.semantic-release.outputs.release-version }} of ${{ github.repository }}"
           branch: gh-pages
           repository: ./charts
-
