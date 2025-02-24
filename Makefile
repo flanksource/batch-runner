@@ -78,19 +78,18 @@ build:
 install:
 	cp ./.bin/$(NAME) /usr/local/bin/
 
-test: envtest
-	go test -v ./...
 
-.bin/upx: .bin
-	wget -nv -O upx.tar.xz https://github.com/upx/upx/releases/download/v3.96/upx-3.96-$(ARCH)_$(OS).tar.xz
-	tar xf upx.tar.xz
-	mv upx-3.96-$(ARCH)_$(OS)/upx .bin
-	rm -rf upx-3.96-$(ARCH)_$(OS)
-
+LOCALBIN = $(shell pwd)/.bin
+ENVTEST ?= $(LOCALBIN)/setup-envtest
 ENVTEST_K8S_VERSION = 1.31.0
-ENVTEST_VERSION ?= release-0.19
-.PHONY: envtest
-envtest: $(ENVTEST) ## Download setup-envtest locally if necessary.
-$(ENVTEST): $(LOCALBIN)
-    $(call go-install-tool,$(ENVTEST),sigs.k8s.io/controller-runtime/tools/setup-envtest,$(ENVTEST_VERSION))
+ENVTEST_VERSION = release-0.19
 
+.PHONY: $(LOCALBIN)
+$(LOCALBIN):
+	mkdir -p $(LOCALBIN)
+
+$(ENVTEST): $(LOCALBIN)
+	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
+
+test: $(ENVTEST)
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use --bin-dir $(LOCALBIN) -p path)" go test -v ./...
