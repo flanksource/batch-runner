@@ -12,6 +12,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
+	"github.com/flanksource/commons/logger"
 	"github.com/flanksource/duty/context"
 	"github.com/flanksource/duty/shutdown"
 	"github.com/flanksource/gomplate/v3"
@@ -42,7 +43,8 @@ func pretty(o any) string {
 }
 func RunConsumer(rootCtx context.Context, config Config) error {
 	if config.LogLevel != "" {
-		rootCtx.Logger.SetLogLevel(config.LogLevel)
+		logger.StandardLogger().SetLogLevel(config.LogLevel)
+		rootCtx.Infof("Set log level to %s => %v", config.LogLevel, rootCtx.Logger.GetLevel())
 	}
 
 	if config.client == nil {
@@ -82,6 +84,7 @@ func RunConsumer(rootCtx context.Context, config Config) error {
 		}
 
 		ctx := rootCtx.WithName(msg.LoggableID)
+		ctx.Logger.SetLogLevel(config.LogLevel)
 
 		// Attempt to decode Bas64
 		decoded, err := base64.StdEncoding.DecodeString(string(msg.Body))
@@ -99,7 +102,7 @@ func RunConsumer(rootCtx context.Context, config Config) error {
 		data["_id"] = msg.LoggableID
 		data["_metadata"] = msg.Metadata
 
-		ctx.Debugf("Received message: %+v", pretty(data))
+		ctx.Debugf("Received message:\n %+v", pretty(data))
 
 		templater := gomplate.StructTemplater{
 			Values:         data,
