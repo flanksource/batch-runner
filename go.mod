@@ -11,10 +11,11 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sns v1.31.3
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.34.3
 	github.com/flanksource/commons v1.36.1
+	github.com/flanksource/duty v1.0.855
 	github.com/flanksource/gomplate/v3 v3.24.55
+	github.com/onsi/gomega v1.36.2
 	github.com/samber/oops v1.13.1
 	github.com/spf13/cobra v1.8.1
-	github.com/stretchr/testify v1.10.0
 	gocloud.dev v0.40.0
 	gocloud.dev/pubsub/kafkapubsub v0.40.0
 	gocloud.dev/pubsub/natspubsub v0.40.0
@@ -54,7 +55,7 @@ require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.3.1 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
-	github.com/ProtonMail/go-crypto v1.0.0 // indirect
+	github.com/ProtonMail/go-crypto v1.1.3 // indirect
 	github.com/RaveNoX/go-jsonmerge v1.0.0 // indirect
 	github.com/Snawoot/go-http-digest-auth-client v1.1.3 // indirect
 	github.com/TomOnTime/utfutil v0.0.0-20230223141146-125e65197b36 // indirect
@@ -84,7 +85,7 @@ require (
 	github.com/cert-manager/cert-manager v1.16.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
-	github.com/cyphar/filepath-securejoin v0.2.4 // indirect
+	github.com/cyphar/filepath-securejoin v0.2.5 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/distribution/reference v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
@@ -101,7 +102,6 @@ require (
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fergusstrange/embedded-postgres v1.30.0 // indirect
-	github.com/flanksource/duty v1.0.855 // indirect
 	github.com/flanksource/is-healthy v1.0.60 // indirect
 	github.com/flanksource/kubectl-neat v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
@@ -110,8 +110,8 @@ require (
 	github.com/glebarez/go-sqlite v1.20.3 // indirect
 	github.com/glebarez/sqlite v1.7.0 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
-	github.com/go-git/go-billy/v5 v5.5.0 // indirect
-	github.com/go-git/go-git/v5 v5.12.0 // indirect
+	github.com/go-git/go-billy/v5 v5.6.0 // indirect
+	github.com/go-git/go-git/v5 v5.13.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
@@ -209,8 +209,6 @@ require (
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/ohler55/ojg v1.25.0 // indirect
 	github.com/oklog/ulid/v2 v2.1.0 // indirect
-	github.com/onsi/ginkgo/v2 v2.22.1 // indirect
-	github.com/onsi/gomega v1.36.2 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/orcaman/concurrent-map/v2 v2.0.1 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
@@ -219,7 +217,6 @@ require (
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/prometheus/client_golang v1.20.5 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
@@ -236,7 +233,7 @@ require (
 	github.com/shirou/gopsutil/v3 v3.24.5 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
-	github.com/skeema/knownhosts v1.2.2 // indirect
+	github.com/skeema/knownhosts v1.3.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stoewer/go-strcase v1.3.0 // indirect
 	github.com/tidwall/gjson v1.17.0 // indirect
