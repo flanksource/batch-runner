@@ -159,7 +159,7 @@ func shouldRetry(ctx context.Context, msg *pubsub.Message, accessor metav1.Objec
 		return
 	}
 	if !IsRetryableError(err) {
-		ctx.Errorf("Unretryable error creating: %v\n%s", err, pretty(o))
+		ctx.Errorf("Unretryable error creating: %v\n%s", err, pretty(accessor))
 		msg.Ack()
 		return
 	}

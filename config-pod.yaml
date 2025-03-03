@@ -12,6 +12,13 @@ pod:
       - name: podinfo
         image: ghcr.io/stefanprodan/podinfo:5.1.4
         imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "500m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
         ports:
           - name: http
             containerPort: 9898
