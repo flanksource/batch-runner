@@ -12,10 +12,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
+	batchv1alpha1 "github.com/flanksource/batch-runner/pkg/apis/batch/v1"
 	"github.com/flanksource/commons/logger"
 	"github.com/flanksource/duty/context"
+	"github.com/flanksource/duty/shell"
 	"github.com/flanksource/duty/shutdown"
 	"github.com/flanksource/gomplate/v3"
+	"github.com/samber/lo"
 	"github.com/samber/oops"
 
 	"gocloud.dev/pubsub"
@@ -41,23 +44,15 @@ func pretty(o any) string {
 	return string(b)
 
 }
-func RunConsumer(rootCtx context.Context, config Config) error {
+func RunConsumer(rootCtx context.Context, config *batchv1alpha1.Config) error {
 	if config.LogLevel != "" {
 		logger.StandardLogger().SetLogLevel(config.LogLevel)
 		rootCtx.Infof("Set log level to %s => %v", config.LogLevel, rootCtx.Logger.GetLevel())
 	}
 
-	if config.client == nil {
-		if client, _, err := NewClient(); err != nil {
-			return oops.Wrapf(err, "Failed to create Kubernetes client")
-		} else {
-			config.client = client
-		}
-	}
-
 	rootCtx.Infof("Config: \n%+v", pretty(config))
 
-	sub, err := config.Subscribe(rootCtx)
+	sub, err := Subscribe(rootCtx, config)
 	if err != nil {
 		return oops.Wrapf(err, "Error building URL")
 	}
@@ -83,10 +78,15 @@ func RunConsumer(rootCtx context.Context, config Config) error {
 			time.Sleep(3 * time.Second)
 		}
 
-		ctx := rootCtx.WithName(msg.LoggableID)
+		ctx := rootCtx.WithName(lo.CoalesceOrEmpty(msg.LoggableID, "unknown"))
 		ctx.Logger.SetLogLevel(config.LogLevel)
 
-		// Attempt to decode Bas64
+		client, err := ctx.LocalKubernetes()
+		if err != nil {
+			return oops.Wrapf(err, "Error getting Kubernetes client")
+		}
+
+		// Attempt to decode Base64
 		decoded, err := base64.StdEncoding.DecodeString(string(msg.Body))
 		if err != nil {
 			decoded = msg.Body
@@ -121,7 +121,7 @@ func RunConsumer(rootCtx context.Context, config Config) error {
 
 			ctx.Tracef("pod=%s", pretty(pod))
 
-			p, err := config.client.CoreV1().Pods(pod.Namespace).Create(ctx, &pod, metav1.CreateOptions{})
+			p, err := client.CoreV1().Pods(pod.Namespace).Create(ctx, &pod, metav1.CreateOptions{})
 			if p == nil || p.CreationTimestamp.IsZero() {
 				p = &pod
 			}
@@ -137,17 +137,44 @@ func RunConsumer(rootCtx context.Context, config Config) error {
 
 			ctx.Tracef("job=%s", pretty(job))
 
-			created, err := config.client.BatchV1().Jobs(job.Namespace).Create(ctx, &job, metav1.CreateOptions{})
+			created, err := client.BatchV1().Jobs(job.Namespace).Create(ctx, &job, metav1.CreateOptions{})
 			if created.CreationTimestamp.IsZero() {
 				created = &job
 			}
 
 			shouldRetry(ctx, msg, created, err)
+		} else if config.Exec != nil {
+			exec := *config.Exec
+			if err := templater.Walk(&exec); err != nil {
+				ctx.Errorf("Error templating exec: %v", err)
+				msg.Ack()
+				continue
+			}
+
+			ctx.Tracef("job=%s", pretty(exec))
+
+			details, err := shell.Run(ctx, exec.ToShellExec())
+			if err == nil && details.ExitCode == 0 {
+				ctx.Tracef(details.String())
+				msg.Ack()
+				continue
+			}
+
+			_delay := time.Second * 5
+			if msg.Nackable() {
+				msg.Nack()
+			}
+			if err != nil {
+				ctx.Errorf("Error running, (retrying in %s %v\n%s", _delay, err, exec.Script)
+			} else {
+				ctx.Errorf("Script returned non-zero exit code: %s", details)
+				time.Sleep(_delay)
+			}
+
 		} else {
 			return fmt.Errorf("Invalid config, must specify either a job or a pod")
 		}
 	}
-
 }
 
 func shouldRetry(ctx context.Context, msg *pubsub.Message, accessor metav1.ObjectMetaAccessor, err error) {
