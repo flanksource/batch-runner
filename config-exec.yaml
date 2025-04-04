@@ -1,0 +1,12 @@
+logLevel: 9
+exec:
+  script: "touch {{.john}}.txt"
+
+sqs:
+  queue: arn:aws:sqs:us-east-1:000000000000:test-batch-runner
+  endpoint: http://localhost:4566
+  accessKey:
+    value: test
+  secretKey:
+    value: test
+  region: us-east-1
