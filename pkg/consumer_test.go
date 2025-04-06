@@ -13,7 +13,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
+	batchv1alpha1 "github.com/flanksource/batch-runner/pkg/apis/batch/v1"
 	"github.com/flanksource/duty"
+	dutyKubernetes "github.com/flanksource/duty/kubernetes"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -118,7 +120,7 @@ func TestSNSToSQSIntegration(t *testing.T) {
 	configData, err := os.ReadFile("../config-pod.yaml")
 	Expect(err).To(BeNil())
 
-	var config Config
+	var config batchv1alpha1.Config
 	Expect(yaml.Unmarshal(configData, &config)).To(BeNil())
 	config.SQS.QueueArn = queueArn
 	config.SQS.AccessKey.ValueStatic = "test"
@@ -126,12 +128,13 @@ func TestSNSToSQSIntegration(t *testing.T) {
 	config.SQS.Endpoint = endpoint
 	config.SQS.WaitTime = 3
 
-	config.client = kubernetes.NewForConfigOrDie(restConfig)
+	client := kubernetes.NewForConfigOrDie(restConfig)
 
 	ctx, cancel, err := duty.Start("batch-runner", duty.ClientOnly)
 	Expect(err).To(BeNil())
+	ctx = ctx.WithLocalKubernetes(dutyKubernetes.NewKubeClient(ctx.Logger, client, restConfig))
 	defer cancel()
-	go RunConsumer(ctx, config)
+	go RunConsumer(ctx, &config)
 	// Publish message to SNS
 	testMessage := "{\"a\": \"b\"}"
 	_, err = snsClient.Publish(context.TODO(), &sns.PublishInput{
@@ -141,7 +144,7 @@ func TestSNSToSQSIntegration(t *testing.T) {
 	Expect(err).To(BeNil())
 
 	findPod := func() *corev1.Pod {
-		if pod, e := config.client.CoreV1().Pods("default").Get(context.TODO(), "batch-b", v1.GetOptions{}); e == nil {
+		if pod, e := client.CoreV1().Pods("default").Get(context.TODO(), "batch-b", v1.GetOptions{}); e == nil {
 			return pod
 		}
 		return nil
@@ -155,7 +158,6 @@ func TestSNSToSQSIntegration(t *testing.T) {
 	Expect(pod.Name).To(Equal("batch-b"))
 
 	// Cleanup
-
 	_, err = sqsClient.DeleteQueue(context.TODO(), &sqs.DeleteQueueInput{
 		QueueUrl: &queueURL,
 	})

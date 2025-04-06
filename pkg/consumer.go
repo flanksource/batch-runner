@@ -12,7 +12,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
-	batchv1alpha1 "github.com/flanksource/batch-runner/pkg/apis/batch/v1"
+	v1 "github.com/flanksource/batch-runner/pkg/apis/batch/v1"
 	"github.com/flanksource/commons/logger"
 	"github.com/flanksource/duty/context"
 	"github.com/flanksource/duty/shell"
@@ -31,6 +31,8 @@ import (
 	_ "gocloud.dev/pubsub/rabbitpubsub"
 )
 
+var retry = NewRetryCache()
+
 func pretty(o any) string {
 	s, err := json.MarshalIndent(o, "", "  ")
 	if err != nil {
@@ -42,25 +44,23 @@ func pretty(o any) string {
 		return err.Error()
 	}
 	return string(b)
-
 }
-func RunConsumer(rootCtx context.Context, config *batchv1alpha1.Config) error {
+func RunConsumer(rootCtx context.Context, config *v1.Config) error {
 	if config.LogLevel != "" {
 		logger.StandardLogger().SetLogLevel(config.LogLevel)
 		rootCtx.Infof("Set log level to %s => %v", config.LogLevel, rootCtx.Logger.GetLevel())
 	}
 
-	rootCtx.Infof("Config: \n%+v", pretty(config))
+	rootCtx.Tracef("Config: \n%+v", pretty(config))
 
 	sub, err := Subscribe(rootCtx, config)
 	if err != nil {
 		return oops.Wrapf(err, "Error building URL")
 	}
 
-	rootCtx.Infof("Receiving messages from %+v", sub)
+	rootCtx.Infof("Consuming from %s", config.String())
 	ctx2, cancel := gocontext.WithCancel(gocontext.Background())
 	shutdown.AddHook(func() {
-		rootCtx.Infof("Shutting down consumer")
 		cancel()
 	})
 
@@ -160,15 +160,27 @@ func RunConsumer(rootCtx context.Context, config *batchv1alpha1.Config) error {
 				continue
 			}
 
-			_delay := time.Second * 5
-			if msg.Nackable() {
-				msg.Nack()
+			if exec.Retry == nil {
+				exec.Retry = &v1.Retry{
+					Attempts: 3,
+					Delay:    30,
+				}
 			}
+
 			if err != nil {
-				ctx.Errorf("Error running, (retrying in %s %v\n%s", _delay, err, exec.Script)
+				ctx.Errorf("Error running %s: %s\n%s", exec.Script, err, details)
 			} else {
 				ctx.Errorf("Script returned non-zero exit code: %s", details)
-				time.Sleep(_delay)
+			}
+
+			delay := retry.GetBackoff(ctx, msg.LoggableID, exec.Retry)
+			if delay != nil {
+				if msg.Nackable() {
+					msg.Nack()
+				}
+				time.Sleep(*delay)
+			} else {
+				msg.Ack()
 			}
 
 		} else {

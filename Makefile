@@ -91,9 +91,10 @@ $(LOCALBIN):
 $(ENVTEST): $(LOCALBIN)
 	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
 
+
+.PHONY: test
 test: $(ENVTEST)
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use --bin-dir $(LOCALBIN) -p path)" go test -v ./...
-
 
 CONTROLLER_GEN = $(LOCALBIN)/controller-gen
 
