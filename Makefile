@@ -93,3 +93,17 @@ $(ENVTEST): $(LOCALBIN)
 
 test: $(ENVTEST)
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use --bin-dir $(LOCALBIN) -p path)" go test -v ./...
+
+
+CONTROLLER_GEN = $(LOCALBIN)/controller-gen
+
+.PHONY: controller-gen
+controller-gen: $(CONTROLLER_GEN)
+$(CONTROLLER_GEN): $(LOCALBIN)
+	test -s $(LOCALBIN)/controller-gen || GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-tools/cmd/controller-gen@latest
+
+.PHONY: manifests
+manifests: controller-gen
+	$(CONTROLLER_GEN) object paths="./pkg/apis/..."
+	$(CONTROLLER_GEN) crd paths="./pkg/apis/..." output:crd:artifacts:config=config/crd/bases
+
