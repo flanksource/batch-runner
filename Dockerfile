@@ -24,14 +24,6 @@ RUN --mount=type=cache,target=/var/lib/apt \
 RUN locale-gen en_US.UTF-8
 RUN update-locale LANG=en_US.UTF-8
 
-# stern, jq, yq
-RUN curl -sLS https://get.arkade.dev | sh && \
-  arkade get kubectl jq yq sops --path /usr/bin && \
-  chmod +x /usr/bin/kubectl /usr/bin/jq /usr/bin/yq /usr/bin/sops
-
-# Minimalized Google cloud sdk
-FROM base AS gcloud-installer
-
 ENV GCLOUD_PATH=/opt/google-cloud-sdk
 ENV PATH $GCLOUD_PATH/bin:$PATH
 ENV CLOUDSDK_PYTHON=/usr/bin/python3
@@ -55,17 +47,31 @@ fi && \
     gcloud --version
 
 
-FROM base AS final
+FROM    debian:bookworm
 
 # Install all locales
 
+WORKDIR /app
+ENV DEBIAN_FRONTEND=noninteractive
 
-ENV PATH /opt/google-cloud-sdk/bin:$PATH
+RUN --mount=type=cache,target=/var/lib/apt \
+    --mount=type=cache,target=/var/cache/apt \
+    apt-get update  && \
+    apt-get install --no-install-recommends -y curl unzip ca-certificates zip tzdata wget gnupg2 bzip2 apt-transport-https locales locales-all lsb-release git python3-crcmod python3-openssl
+
+RUN locale-gen en_US.UTF-8
+RUN update-locale LANG=en_US.UTF-8
+
+# stern, jq, yq
+RUN curl -sLS https://get.arkade.dev | sh && \
+  arkade get kubectl jq yq sops --path /usr/bin && \
+  chmod +x /usr/bin/kubectl /usr/bin/jq /usr/bin/yq /usr/bin/sops
+
+ENV GCLOUD_PATH=/opt/google-cloud-sdk
+ENV PATH $GCLOUD_PATH/bin:$PATH
 ENV CLOUDSDK_PYTHON=/usr/bin/python3
-COPY --from=gcloud-installer /opt/google-cloud-sdk /opt/google-cloud-sdk
-# This is to be able to update gcloud packages
-RUN git config --system credential.'https://source.developers.google.com'.helper gcloud.sh
 
+COPY --from=gcloud-installer /opt/google-cloud-sdk /opt/google-cloud-sdk
 
 # Azure CLI
 RUN mkdir -p /etc/apt/keyrings && \
