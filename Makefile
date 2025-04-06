@@ -41,7 +41,7 @@ vet: ## Run go vet against code.
 	go vet ./...
 
 .PHONY: compress
-compress: .bin/upx
+compress: .bin
 	upx -5 ./.bin/$(NAME)_linux_amd64 ./.bin/$(NAME)_linux_arm64 ./.bin/$(NAME).exe
 
 .PHONY: linux
