@@ -11,7 +11,7 @@ COPY ./ ./
 
 RUN make build
 
-FROM debian:bookworm
+FROM debian:bookworm AS gcloud-installer
 
 WORKDIR /app
 ENV DEBIAN_FRONTEND=noninteractive
