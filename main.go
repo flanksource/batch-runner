@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"regexp"
+	"strings"
 	"sync"
 
 	"github.com/flanksource/batch-runner/pkg"
@@ -29,6 +31,32 @@ var rootCmd = &cobra.Command{
 	Run:   run,
 }
 
+func parseConfigFile(configFiles []string) ([]batchv1alpha1.Config, error) {
+
+	var configs []batchv1alpha1.Config
+
+	for _, configFile := range configFiles {
+		configData, err := os.ReadFile(configFile)
+		if err != nil {
+			return nil, fmt.Errorf("error reading config file %s: %v", configFile, err)
+		}
+
+		re := regexp.MustCompile(`(?m)^---\n`)
+		for _, chunk := range re.Split(string(configData), -1) {
+			if strings.TrimSpace(chunk) == "" {
+				continue
+			}
+
+			var config batchv1alpha1.Config
+			if err := yaml.Unmarshal([]byte(chunk), &config); err != nil {
+				return nil, fmt.Errorf("error parsing config file: %w", err)
+			}
+			configs = append(configs, config)
+		}
+	}
+	return configs, nil
+}
+
 func run(cmd *cobra.Command, args []string) {
 	ctx, cancel, err := duty.Start("batch-runner", duty.ClientOnly)
 	defer cancel()
@@ -45,20 +73,12 @@ func run(cmd *cobra.Command, args []string) {
 
 	wg := sync.WaitGroup{}
 
-	for _, configFile := range configFiles {
-		if configFile == "" {
-			continue
-		}
-		configData, err := os.ReadFile(configFile)
-		if err != nil {
-			logger.Fatalf("Error reading config file: %v", err)
-		}
-
-		var config batchv1alpha1.Config
-		if err := yaml.Unmarshal(configData, &config); err != nil {
-			logger.Fatalf("Error parsing config file: %v", err)
-			os.Exit(1)
-		}
+	configs, err := parseConfigFile(configFiles)
+	if err != nil {
+		logger.Fatalf(err.Error())
+		os.Exit(1)
+	}
+	for _, config := range configs {
 
 		wg.Add(1)
 
@@ -77,7 +97,7 @@ var configFiles []string
 
 func main() {
 	rootCmd.Flags().StringArrayVarP(&configFiles, "config", "c", []string{}, "Path to config file")
-	rootCmd.Flags().MarkDeprecated("config", "Pass the config files as arguments instead")
+	_ = rootCmd.Flags().MarkDeprecated("config", "Pass the config files as arguments instead")
 	logger.BindFlags(rootCmd.Flags())
 
 	if err := rootCmd.Execute(); err != nil {
