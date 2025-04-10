@@ -76,8 +76,7 @@ build:
 
 .PHONY: install
 install:
-	cp ./.bin/$(NAME) /usr/local/bin/
-
+	cp $(LOCALBIN)/$(NAME) /usr/local/bin/
 
 LOCALBIN = $(shell pwd)/.bin
 ENVTEST ?= $(LOCALBIN)/setup-envtest

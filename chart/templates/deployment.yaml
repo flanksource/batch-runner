@@ -18,6 +18,9 @@ spec:
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          args:
+            - -c
+            - /app/config.yaml
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.config.configMap.enabled }}
           volumeMounts:
