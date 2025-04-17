@@ -105,7 +105,7 @@ type ExecAction struct {
 }
 
 type Retry struct {
-	Attempts int `json:"attempts"`
+	Attempts int `json:"attempts,omitempty"`
 	// Delay is the time in seconds to wait between retries
 	Delay int `json:"delay"`
 }
@@ -164,13 +164,13 @@ func (p PubSubConfig) String() string {
 
 // +kubebuilder:object:generate=true
 type NATSConfig struct {
-	URL     `json:",inline"`
+	URL     string `json:"url,omitempty"`
 	Subject string `json:"subject"`
-	Queue   string `json:"queue"`
+	Queue   string `json:"queue,omitempty"`
 }
 
 func (n NATSConfig) String() string {
-	return fmt.Sprintf("nats://%s", n.Queue)
+	return fmt.Sprintf("nats://%s", n.Subject)
 }
 
 // +kubebuilder:object:generate=true
