@@ -7,9 +7,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/flanksource/commons/logger"
 	"github.com/flanksource/duty/context"
+	"github.com/nats-io/nats.go"
 	"gocloud.dev/pubsub"
 	"gocloud.dev/pubsub/awssnssqs"
 	"gocloud.dev/pubsub/kafkapubsub"
+	"gocloud.dev/pubsub/natspubsub"
 
 	batchv1alpha1 "github.com/flanksource/batch-runner/pkg/apis/batch/v1"
 )
@@ -63,7 +65,14 @@ func Subscribe(ctx context.Context, c *batchv1alpha1.Config) (*pubsub.Subscripti
 	}
 
 	if c.NATS != nil {
-		return pubsub.OpenSubscription(ctx, fmt.Sprintf("nats://%s", c.NATS.Queue))
+		conn, err := nats.Connect(c.NATS.URL)
+		if err != nil {
+			return nil, err
+		}
+
+		return natspubsub.OpenSubscriptionV2(conn, c.NATS.Subject, &natspubsub.SubscriptionOptions{
+			Queue: c.NATS.Queue,
+		})
 	}
 
 	if c.Memory != nil {
