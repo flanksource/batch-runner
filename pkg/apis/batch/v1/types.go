@@ -2,7 +2,6 @@ package v1
 
 import (
 	"fmt"
-	"net/url"
 	"time"
 
 	batchv1 "k8s.io/api/batch/v1"
@@ -10,6 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/flanksource/duty/connection"
+	dutyps "github.com/flanksource/duty/pubsub"
 	"github.com/flanksource/duty/shell"
 	"github.com/flanksource/duty/types"
 )
@@ -28,38 +28,11 @@ type BatchTrigger struct {
 // +kubebuilder:object:generate=true
 type Config struct {
 	// +optional
-	LogLevel string        `json:"logLevel,omitempty"`
-	Pod      *corev1.Pod   `json:"pod,omitempty"`
-	Job      *batchv1.Job  `json:"job,omitempty"`
-	Exec     *ExecAction   `json:"exec,omitempty"`
-	SQS      *SQSConfig    `json:"sqs,omitempty"`
-	PubSub   *PubSubConfig `json:"pubsub,omitempty"`
-	RabbitMQ *RabbitConfig `json:"rabbitmq,omitempty"`
-	Memory   *MemoryConfig `json:"memory,omitempty"`
-	Kafka    *KafkaConfig  `json:"kafka,omitempty"`
-	NATS     *NATSConfig   `json:"nats,omitempty"`
-}
-
-func (c *Config) GetQueue() fmt.Stringer {
-	if c.SQS != nil {
-		return *c.SQS
-	}
-	if c.PubSub != nil {
-		return *c.PubSub
-	}
-	if c.RabbitMQ != nil {
-		return *c.RabbitMQ
-	}
-	if c.Memory != nil {
-		return *c.Memory
-	}
-	if c.Kafka != nil {
-		return *c.Kafka
-	}
-	if c.NATS != nil {
-		return *c.NATS
-	}
-	return nil
+	LogLevel           string       `json:"logLevel,omitempty"`
+	Pod                *corev1.Pod  `json:"pod,omitempty"`
+	Job                *batchv1.Job `json:"job,omitempty"`
+	Exec               *ExecAction  `json:"exec,omitempty"`
+	dutyps.QueueConfig `json:",inline"`
 }
 
 type S string
@@ -126,87 +99,4 @@ func (e *ExecAction) ToShellExec() shell.Exec {
 		Artifacts:   e.Artifacts,
 		Checkout:    e.Checkout,
 	}
-}
-
-// +kubebuilder:object:generate=true
-type SQSConfig struct {
-	QueueArn    string `json:"queue"`
-	RawDelivery bool   `json:"raw"`
-	// Time in seconds to long-poll for messages, Default to 15, max is 20
-	WaitTime                 int `json:"waitTime,omitempty"`
-	connection.AWSConnection `json:",inline"`
-}
-
-func (s SQSConfig) String() string {
-	return s.QueueArn
-}
-
-// +kubebuilder:object:generate=true
-type KafkaConfig struct {
-	Brokers []string `json:"brokers"`
-	Topic   string   `json:"topic"`
-	Group   string   `json:"group"`
-}
-
-func (k KafkaConfig) String() string {
-	return fmt.Sprintf("kafka://%s", k.Topic)
-}
-
-// +kubebuilder:object:generate=true
-type PubSubConfig struct {
-	ProjectID    string `json:"project_id"`
-	Subscription string `json:"subscription"`
-}
-
-func (p PubSubConfig) String() string {
-	return fmt.Sprintf("gcppubsub://projects/%s/subscriptions/%s", p.ProjectID, p.Subscription)
-}
-
-// +kubebuilder:object:generate=true
-type NATSConfig struct {
-	URL     string `json:"url,omitempty"`
-	Subject string `json:"subject"`
-	Queue   string `json:"queue,omitempty"`
-}
-
-func (n NATSConfig) String() string {
-	return fmt.Sprintf("nats://%s", n.Subject)
-}
-
-// +kubebuilder:object:generate=true
-type RabbitConfig struct {
-	URL   `json:",inline"`
-	Queue string `json:"queue"`
-}
-
-func (r RabbitConfig) String() string {
-	return fmt.Sprintf("rabbit://%s", r.Queue)
-}
-
-// +kubebuilder:object:generate=true
-type MemoryConfig struct {
-	QueueName string `json:"queue"`
-}
-
-func (m MemoryConfig) String() string {
-	return fmt.Sprintf("mem://%s", m.QueueName)
-}
-
-// +kubebuilder:object:generate=true
-type URL struct {
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-func (u URL) String() string {
-	_url := url.URL{
-		Host: u.Host,
-	}
-	if u.Username != "" {
-		_url.User = url.UserPassword(u.Username, u.Password)
-
-	}
-	return _url.String()
 }

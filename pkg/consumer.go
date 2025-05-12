@@ -15,6 +15,7 @@ import (
 	v1 "github.com/flanksource/batch-runner/pkg/apis/batch/v1"
 	"github.com/flanksource/commons/logger"
 	"github.com/flanksource/duty/context"
+	dutyps "github.com/flanksource/duty/pubsub"
 	"github.com/flanksource/duty/shell"
 	"github.com/flanksource/duty/shutdown"
 	"github.com/flanksource/gomplate/v3"
@@ -53,7 +54,7 @@ func RunConsumer(rootCtx context.Context, config *v1.Config) error {
 
 	rootCtx.Tracef("Config: \n%+v", pretty(config))
 
-	sub, err := Subscribe(rootCtx, config)
+	sub, err := dutyps.Subscribe(rootCtx, config.QueueConfig)
 	if err != nil {
 		return oops.Wrapf(err, "Error building URL")
 	}
