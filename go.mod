@@ -12,7 +12,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.38.3
 	github.com/eko/gocache/lib/v4 v4.1.6
 	github.com/flanksource/commons v1.37.0
-	github.com/flanksource/duty v1.0.920
+	github.com/flanksource/duty v1.0.935
 	github.com/flanksource/gomplate/v3 v3.24.56
 	github.com/onsi/gomega v1.36.2
 	github.com/samber/lo v1.49.1
@@ -333,5 +333,3 @@ require (
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
 )
-
-replace github.com/flanksource/duty => ../duty
