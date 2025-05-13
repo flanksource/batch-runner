@@ -156,7 +156,7 @@ func RunConsumer(rootCtx context.Context, config *v1.Config) error {
 
 			details, err := shell.Run(ctx, exec.ToShellExec())
 			if err == nil && details.ExitCode == 0 {
-				ctx.Tracef(details.String())
+				ctx.Tracef("%s", details.String())
 				msg.Ack()
 				continue
 			}
