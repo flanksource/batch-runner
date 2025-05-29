@@ -14,7 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	batchv1alpha1 "github.com/flanksource/batch-runner/pkg/apis/batch/v1"
-	"github.com/flanksource/duty"
+	dutyctx "github.com/flanksource/duty/context"
 	dutyKubernetes "github.com/flanksource/duty/kubernetes"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
@@ -130,10 +130,8 @@ func TestSNSToSQSIntegration(t *testing.T) {
 
 	client := kubernetes.NewForConfigOrDie(restConfig)
 
-	ctx, cancel, err := duty.Start("batch-runner", duty.ClientOnly)
-	Expect(err).To(BeNil())
+	ctx := dutyctx.New()
 	ctx = ctx.WithLocalKubernetes(dutyKubernetes.NewKubeClient(ctx.Logger, client, restConfig))
-	defer cancel()
 	go RunConsumer(ctx, &config)
 	// Publish message to SNS
 	testMessage := "{\"a\": \"b\"}"
