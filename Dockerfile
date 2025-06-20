@@ -16,9 +16,7 @@ FROM debian:bookworm AS gcloud-installer
 WORKDIR /app
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN --mount=type=cache,target=/var/lib/apt,id=apt-cache-${TARGETARCH} \
-    --mount=type=cache,target=/var/cache/apt,id=apt-cache-${TARGETARCH} \
-    apt-get update  && \
+RUN apt-get update  && \
     apt-get install --no-install-recommends -y curl unzip ca-certificates zip tzdata wget gnupg2 bzip2 apt-transport-https locales locales-all lsb-release git python3-crcmod python3-openssl
 
 RUN locale-gen en_US.UTF-8
@@ -54,9 +52,7 @@ FROM    debian:bookworm
 WORKDIR /app
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN --mount=type=cache,target=/var/lib/apt,id=apt-cache-${TARGETARCH} \
-    --mount=type=cache,target=/var/cache/apt,id=apt-cache-${TARGETARCH} \
-    apt-get update  && \
+RUN apt-get update  && \
     apt-get install --no-install-recommends -y curl unzip ca-certificates zip tzdata wget gnupg2 bzip2 apt-transport-https locales locales-all lsb-release git python3-crcmod python3-openssl
 
 RUN locale-gen en_US.UTF-8
