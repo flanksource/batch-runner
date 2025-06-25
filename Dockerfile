@@ -13,6 +13,8 @@ RUN make build
 
 FROM debian:bookworm AS gcloud-installer
 
+ARG TARGETARCH
+
 WORKDIR /app
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -48,6 +50,7 @@ fi && \
 FROM    debian:bookworm
 
 # Install all locales
+ARG TARGETARCH
 
 WORKDIR /app
 ENV DEBIAN_FRONTEND=noninteractive
