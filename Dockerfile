@@ -61,10 +61,13 @@ RUN apt-get update  && \
 RUN locale-gen en_US.UTF-8
 RUN update-locale LANG=en_US.UTF-8
 
-# stern, jq, yq
-RUN curl -sLS https://get.arkade.dev | sh && \
-  arkade get kubectl jq yq sops --path /usr/bin && \
-  chmod +x /usr/bin/kubectl /usr/bin/jq /usr/bin/yq /usr/bin/sops
+
+ARG GITHUB_TOKEN
+RUN curl -sL \
+    https://github.com/flanksource/deps/releases/latest/download/deps-linux-${TARGETARCH}.tar.gz -o deps-linux-${TARGETARCH}.tar.gz  && \
+    tar -xzf deps-linux-${TARGETARCH}.tar.gz -C /usr/bin && \
+    rm deps-linux-${TARGETARCH}.tar.gz && \
+    deps install kubectl jq yq sops --bin-dir /usr/bin
 
 ENV GCLOUD_PATH=/opt/google-cloud-sdk
 ENV PATH $GCLOUD_PATH/bin:$PATH
