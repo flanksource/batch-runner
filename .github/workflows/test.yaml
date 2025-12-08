@@ -13,7 +13,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: v1.22.x
+          go-version: v1.25.x
       - uses: actions/cache@v4
         with:
           path: |
