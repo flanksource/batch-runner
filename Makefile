@@ -93,7 +93,7 @@ $(ENVTEST): $(LOCALBIN)
 
 .PHONY: test
 test: $(ENVTEST)
-	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use --bin-dir $(LOCALBIN) -p path)" go test -v ./...
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use --bin-dir $(LOCALBIN) -p path)"  go run github.com/onsi/ginkgo/v2/ginkgo -v ./...
 
 CONTROLLER_GEN = $(LOCALBIN)/controller-gen
 

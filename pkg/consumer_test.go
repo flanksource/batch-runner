@@ -1,168 +1,71 @@
-package pkg
+package pkg_test
 
 import (
 	"context"
-	"fmt"
-	"os"
-	"testing"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
-	"github.com/aws/aws-sdk-go-v2/service/sqs"
-	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
-	batchv1alpha1 "github.com/flanksource/batch-runner/pkg/apis/batch/v1"
-	dutyctx "github.com/flanksource/duty/context"
-	dutyKubernetes "github.com/flanksource/duty/kubernetes"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
-	"sigs.k8s.io/controller-runtime/pkg/envtest"
-	"sigs.k8s.io/yaml"
 )
 
-func TestSNSToSQSIntegration(t *testing.T) {
-	RegisterTestingT(t)
+var _ = Describe("SNS to SQS Integration", Ordered, func() {
 
-	testEnv := &envtest.Environment{}
+	DescribeTable("should render message templates correctly",
+		func(message, expectedPodName, expectedMsgJSON, expectedUIMsg string) {
+			_, err := snsClient.Publish(context.TODO(), &sns.PublishInput{
+				TopicArn: &topicArn,
+				Message:  aws.String(message),
+			})
+			Expect(err).To(BeNil())
 
-	// start testEnv
-	restConfig, err := testEnv.Start()
-	Expect(err).To(BeNil())
+			findPod := func() *corev1.Pod {
+				pod, e := client.CoreV1().Pods("default").Get(context.TODO(), expectedPodName, v1.GetOptions{})
+				if e == nil {
+					return pod
+				}
+				return nil
+			}
 
-	defer testEnv.Stop()
+			Eventually(findPod).
+				WithTimeout(10 * time.Second).
+				WithPolling(time.Second).
+				ShouldNot(BeNil())
 
-	// LocalStack configuration
-	endpoint := "http://localhost:4566"
-	region := "us-east-1"
+			pod := findPod()
+			Expect(pod.Name).To(Equal(expectedPodName))
+			Expect(pod.Annotations["msg"]).To(ContainSubstring(expectedMsgJSON))
 
-	// Create AWS config for LocalStack
-	cfg, err := config.LoadDefaultConfig(context.TODO(),
-		config.WithRegion(region),
-		config.WithEndpointResolver(aws.EndpointResolverFunc(
-			func(service, region string) (aws.Endpoint, error) {
-				return aws.Endpoint{URL: endpoint}, nil
-			})),
-		config.WithCredentialsProvider(credentials.StaticCredentialsProvider{
-			Value: aws.Credentials{
-				AccessKeyID:     "test",
-				SecretAccessKey: "test",
-				SessionToken:    "test",
-			},
-		}),
-	)
-	Expect(err).To(BeNil())
-
-	// Create SNS and SQS clients
-	snsClient := sns.NewFromConfig(cfg)
-	sqsClient := sqs.NewFromConfig(cfg)
-
-	queueName := "test-batch-runner-" + time.Now().Format("150405")
-
-	// Create SNS topic
-	topicResult, err := snsClient.CreateTopic(context.TODO(), &sns.CreateTopicInput{
-		Name: aws.String(queueName),
-	})
-	Expect(err).To(BeNil())
-	topicArn := *topicResult.TopicArn
-
-	// Create SQS queue
-	queueResult, err := sqsClient.CreateQueue(context.TODO(), &sqs.CreateQueueInput{
-		QueueName: aws.String(queueName),
-	})
-
-	Expect(err).To(BeNil())
-	queueURL := *queueResult.QueueUrl
-
-	// Get queue ARN
-	queueAttrs, err := sqsClient.GetQueueAttributes(context.TODO(), &sqs.GetQueueAttributesInput{
-		QueueUrl:       &queueURL,
-		AttributeNames: []types.QueueAttributeName{"QueueArn"},
-	})
-	Expect(err).To(BeNil())
-	queueArn := queueAttrs.Attributes["QueueArn"]
-
-	// Subscribe queue to topic
-	_, err = snsClient.Subscribe(context.TODO(), &sns.SubscribeInput{
-		TopicArn: &topicArn,
-		Protocol: aws.String("sqs"),
-		Endpoint: &queueArn,
-	})
-	Expect(err).To(BeNil())
-
-	// Set queue policy to allow SNS
-	policy := fmt.Sprintf(`{
-		"Version": "2012-10-17",
-		"Statement": [{
-			"Effect": "Allow",
-			"Principal": "*",
-			"Action": "sqs:SendMessage",
-			"Resource": "%s",
-			"Condition": {
-				"ArnEquals": {
-					"aws:SourceArn": "%s"
+			var uiMessageArg string
+			for _, arg := range pod.Spec.Containers[0].Command {
+				if strings.Contains(arg, "--ui-message=") {
+					uiMessageArg = strings.SplitN(arg, "=", 2)[1]
+					break
 				}
 			}
-		}]
-	}`, queueArn, topicArn)
-
-	_, err = sqsClient.SetQueueAttributes(context.TODO(), &sqs.SetQueueAttributesInput{
-		QueueUrl: &queueURL,
-		Attributes: map[string]string{
-			"Policy": policy,
+			Expect(uiMessageArg).To(ContainSubstring(expectedUIMsg))
 		},
-	})
-	Expect(err).To(BeNil())
-
-	configData, err := os.ReadFile("../config-pod.yaml")
-	Expect(err).To(BeNil())
-
-	var config batchv1alpha1.Config
-	Expect(yaml.Unmarshal(configData, &config)).To(BeNil())
-	config.SQS.QueueArn = queueArn
-	config.SQS.AccessKey.ValueStatic = "test"
-	config.SQS.SecretKey.ValueStatic = "test"
-	config.SQS.Endpoint = endpoint
-	config.SQS.WaitTime = 3
-
-	client := kubernetes.NewForConfigOrDie(restConfig)
-
-	ctx := dutyctx.New()
-	ctx = ctx.WithLocalKubernetes(dutyKubernetes.NewKubeClient(ctx.Logger, client, restConfig))
-	go RunConsumer(ctx, &config)
-	// Publish message to SNS
-	testMessage := "{\"a\": \"b\"}"
-	_, err = snsClient.Publish(context.TODO(), &sns.PublishInput{
-		TopicArn: &topicArn,
-		Message:  &testMessage,
-	})
-	Expect(err).To(BeNil())
-
-	findPod := func() *corev1.Pod {
-		if pod, e := client.CoreV1().Pods("default").Get(context.TODO(), "batch-b", v1.GetOptions{}); e == nil {
-			return pod
-		}
-		return nil
-	}
-
-	Eventually(findPod).
-		WithTimeout(10 * time.Second).
-		WithPolling(time.Second).
-		ShouldNot(BeNil())
-	pod := findPod()
-	Expect(pod.Name).To(Equal("batch-b"))
-
-	// Cleanup
-	_, err = sqsClient.DeleteQueue(context.TODO(), &sqs.DeleteQueueInput{
-		QueueUrl: &queueURL,
-	})
-	Expect(err).To(BeNil())
-
-	_, err = snsClient.DeleteTopic(context.TODO(), &sns.DeleteTopicInput{
-		TopicArn: &topicArn,
-	})
-	Expect(err).To(BeNil())
-}
+		Entry("simple message",
+			`{"a": "first"}`,
+			"batch-first",
+			`"a":"first"`,
+			"first",
+		),
+		Entry("message with extra field",
+			`{"a": "second", "extra": "data"}`,
+			"batch-second",
+			`"a":"second"`,
+			"second",
+		),
+		Entry("message with nested object",
+			`{"a": "third", "nested": {"key": "value"}}`,
+			"batch-third",
+			`"a":"third"`,
+			"third",
+		),
+	)
+})
