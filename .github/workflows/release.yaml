@@ -24,6 +24,10 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: v1.25.x
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
       - uses: actions/cache@v4
         with:
           path: |
@@ -84,8 +88,6 @@ jobs:
           platforms: ${{ matrix.platform }}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
           tags: flanksource/batch-runner
-          secrets: |
-            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
       - name: Export digest
         run: |
