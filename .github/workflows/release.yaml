@@ -47,6 +47,9 @@ jobs:
           file_glob: true
   docker:
     needs: semantic-release
+    permissions:
+      contents: read
+      packages: write
     strategy:
       fail-fast: false
       matrix:
@@ -81,6 +84,8 @@ jobs:
           platforms: ${{ matrix.platform }}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
           tags: flanksource/batch-runner
+          build-args: |
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
       - name: Export digest
         run: |
