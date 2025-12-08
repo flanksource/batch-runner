@@ -62,12 +62,12 @@ RUN locale-gen en_US.UTF-8
 RUN update-locale LANG=en_US.UTF-8
 
 
-ARG GITHUB_TOKEN
-RUN curl -sL \
-    https://github.com/flanksource/deps/releases/latest/download/deps-linux-${TARGETARCH}.tar.gz -o deps-linux-${TARGETARCH}.tar.gz  && \
-    tar -xzf deps-linux-${TARGETARCH}.tar.gz -C /usr/bin && \
-    rm deps-linux-${TARGETARCH}.tar.gz && \
-    deps install kubectl jq yq sops --bin-dir /usr/bin
+# kubectl, jq, yq, sops
+RUN --mount=type=secret,id=GITHUB_TOKEN \
+  export GITHUB_TOKEN=$(cat /run/secrets/GITHUB_TOKEN 2>/dev/null || true) && \
+  curl -sLS https://github.com/flanksource/deps/releases/latest/download/deps_linux_$(dpkg --print-architecture) -o /usr/bin/deps && \
+  chmod +x /usr/bin/deps && \
+  deps install kubectl jq yq sops --bin-dir /usr/bin
 
 ENV GCLOUD_PATH=/opt/google-cloud-sdk
 ENV PATH $GCLOUD_PATH/bin:$PATH
