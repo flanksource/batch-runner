@@ -112,7 +112,7 @@ func RunConsumer(rootCtx context.Context, config *v1.Config) error {
 		}
 
 		if config.Pod != nil {
-			var pod = *config.Pod
+			var pod = config.Pod.DeepCopy()
 
 			if err := templater.Walk(&pod); err != nil {
 				ctx.Errorf("Error templating Pod: %v", err)
@@ -122,15 +122,15 @@ func RunConsumer(rootCtx context.Context, config *v1.Config) error {
 
 			ctx.Tracef("pod=%s", pretty(pod))
 
-			p, err := client.CoreV1().Pods(pod.Namespace).Create(ctx, &pod, metav1.CreateOptions{})
+			p, err := client.CoreV1().Pods(pod.Namespace).Create(ctx, pod, metav1.CreateOptions{})
 			if p == nil || p.CreationTimestamp.IsZero() {
-				p = &pod
+				p = pod
 			}
 			shouldRetry(ctx, msg, p, err)
 		} else if config.Job != nil {
-			var job = *config.Job
+			var job = config.Job.DeepCopy()
 
-			if err := templater.Walk(&job); err != nil {
+			if err := templater.Walk(job); err != nil {
 				ctx.Errorf("Error templating job: %v", err)
 				msg.Ack()
 				continue
@@ -138,9 +138,9 @@ func RunConsumer(rootCtx context.Context, config *v1.Config) error {
 
 			ctx.Tracef("job=%s", pretty(job))
 
-			created, err := client.BatchV1().Jobs(job.Namespace).Create(ctx, &job, metav1.CreateOptions{})
+			created, err := client.BatchV1().Jobs(job.Namespace).Create(ctx, job, metav1.CreateOptions{})
 			if created.CreationTimestamp.IsZero() {
-				created = &job
+				created = job
 			}
 
 			shouldRetry(ctx, msg, created, err)
