@@ -107,4 +107,5 @@ $(CONTROLLER_GEN): $(LOCALBIN)
 manifests: controller-gen
 	$(CONTROLLER_GEN) object paths="./pkg/apis/..."
 	$(CONTROLLER_GEN) crd paths="./pkg/apis/..." output:crd:artifacts:config=config/crd/bases
+	yq -i 'del(.. | .description? | select(.))' config/crd/bases/batch.flanksource.com_batchtriggers.yaml
 
