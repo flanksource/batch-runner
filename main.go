@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/flanksource/batch-runner/cmd"
 	"github.com/flanksource/batch-runner/pkg"
 	"github.com/flanksource/commons/logger"
 	"github.com/flanksource/duty"
@@ -99,6 +100,8 @@ func main() {
 	rootCmd.Flags().StringArrayVarP(&configFiles, "config", "c", []string{}, "Path to config file")
 	_ = rootCmd.Flags().MarkDeprecated("config", "Pass the config files as arguments instead")
 	logger.BindFlags(rootCmd.Flags())
+
+	rootCmd.AddCommand(cmd.ControllerCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

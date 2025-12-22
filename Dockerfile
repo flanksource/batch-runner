@@ -13,8 +13,9 @@ RUN make build
 
 
 FROM flanksource/base-image:latest
-ARG TARGETARCH
 
+# Install all locales
+ARG TARGETARCH
 
 WORKDIR /app
 ENV DEBIAN_FRONTEND=noninteractive

@@ -71,12 +71,13 @@ lint:
 	golangci-lint run -v ./...
 
 .PHONY: build
-build:
-	go build -o $(NAME) -ldflags "-X \"main.version=$(VERSION_TAG)\"" .
+build:  $(LOCALBIN)
+	go build -o $(LOCALBIN)/$(NAME) -ldflags "-X \"main.version=$(VERSION_TAG)\"" .
 
 .PHONY: install
 install:
 	cp $(LOCALBIN)/$(NAME) /usr/local/bin/
+
 
 LOCALBIN = $(shell pwd)/.bin
 ENVTEST ?= $(LOCALBIN)/setup-envtest

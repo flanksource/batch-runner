@@ -20,5 +20,5 @@ var (
 )
 
 func init() {
-	SchemeBuilder.Register(&BatchTrigger{})
+	SchemeBuilder.Register(&BatchTrigger{}, &BatchTriggerList{})
 }
