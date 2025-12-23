@@ -35,14 +35,14 @@ jobs:
         with:
           go-version: v1.25.x
 
-      - name: Install tools
-        uses: flanksource/deps@main
-        with:
-          tools: |
-            helm@v4.0.4
-            aws-cli@latest
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      #- name: Install tools
+        #uses: flanksource/deps@main
+        #with:
+          #tools: |
+            #helm@v4.0.4
+            #aws-cli@latest
+        #env:
+          #GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - uses: azure/setup-helm@v4 
         with:                     
