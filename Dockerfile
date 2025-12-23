@@ -21,6 +21,6 @@ WORKDIR /app
 ENV DEBIAN_FRONTEND=noninteractive
 
 
-COPY --from=builder /app/batch-runner /app/batch-runner
+COPY --from=builder /app/.bin/batch-runner /app/.bin/batch-runner
 
-ENTRYPOINT ["/app/batch-runner"]
+ENTRYPOINT ["/app/.bin/batch-runner"]

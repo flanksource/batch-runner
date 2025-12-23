@@ -106,6 +106,6 @@ $(CONTROLLER_GEN): $(LOCALBIN)
 .PHONY: manifests
 manifests: controller-gen
 	$(CONTROLLER_GEN) object paths="./pkg/apis/..."
-	$(CONTROLLER_GEN) crd paths="./pkg/apis/..." output:crd:artifacts:config=config/crd/bases
-	yq -i 'del(.. | .description? | select(.))' config/crd/bases/batch.flanksource.com_batchtriggers.yaml
+	$(CONTROLLER_GEN) crd paths="./pkg/apis/..." output:crd:artifacts:config=chart/crds
+	yq -i 'del(.. | .description? | select(.))' chart/crds/batch.flanksource.com_batchtriggers.yaml
 
