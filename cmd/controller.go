@@ -5,7 +5,7 @@ import (
 
 	"github.com/flanksource/batch-runner/pkg/controller"
 	"github.com/flanksource/commons/logger"
-	"github.com/flanksource/duty"
+	"github.com/flanksource/duty/context"
 	"github.com/spf13/cobra"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
@@ -36,12 +36,7 @@ func init() {
 func runController(cmd *cobra.Command, args []string) {
 	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
 
-	dutyCtx, cancel, err := duty.Start("batch-runner-controller", duty.ClientOnly)
-	if err != nil {
-		logger.Fatalf("Error starting duty: %v", err)
-		os.Exit(1)
-	}
-	defer cancel()
+	dutyCtx := context.New()
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme: controller.GetScheme(),

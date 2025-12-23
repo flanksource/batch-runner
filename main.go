@@ -10,7 +10,7 @@ import (
 	"github.com/flanksource/batch-runner/cmd"
 	"github.com/flanksource/batch-runner/pkg"
 	"github.com/flanksource/commons/logger"
-	"github.com/flanksource/duty"
+	"github.com/flanksource/duty/context"
 	"github.com/flanksource/duty/shutdown"
 	"github.com/spf13/cobra"
 	_ "gocloud.dev/pubsub/awssnssqs"
@@ -59,12 +59,7 @@ func parseConfigFile(configFiles []string) ([]batchv1alpha1.Config, error) {
 }
 
 func run(cmd *cobra.Command, args []string) {
-	ctx, cancel, err := duty.Start("batch-runner", duty.ClientOnly)
-	defer cancel()
-	if err != nil {
-		logger.Fatalf("Error starting duty: %v", err)
-		os.Exit(1)
-	}
+	ctx := context.New()
 
 	shutdown.WaitForSignal()
 
