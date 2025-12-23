@@ -24,10 +24,5 @@ jobs:
           restore-keys: |
             cache-
 
-      - name: Start LocalStack
-        uses: LocalStack/setup-localstack@v0.2.3
-        with:
-          image-tag: "latest"
-          install-awslocal: "true"
       - name: Run Tests
         run: make test

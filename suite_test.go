@@ -10,6 +10,7 @@ import (
 	"github.com/flanksource/clicky"
 	flanksourceCtx "github.com/flanksource/commons-db/context"
 	"github.com/flanksource/commons-db/kubernetes"
+	"github.com/flanksource/commons-test/command"
 	"github.com/flanksource/commons-test/helm"
 	"github.com/flanksource/commons-test/kind"
 	k8stest "github.com/flanksource/commons-test/kubernetes"
@@ -51,9 +52,10 @@ var _ = BeforeSuite(func() {
 	image := fmt.Sprintf("%s:%s", imageName, imageVersion)
 
 	By("Docker Build")
-	p := clicky.Exec("docker", "build", "-t", image, ".").Run()
-	clicky.MustFormat(p.Result().Stderr)
-	Expect(p.ExitCode()).To(Equal(0))
+	p := command.NewCommandRunner(true).RunCommand("docker", "build", "-t", image, ".")
+	clicky.MustFormat(p.Stdout)
+	clicky.MustFormat(p.Stderr)
+	Expect(p.ExitCode).To(Equal(0))
 	Expect(p.Err).NotTo(HaveOccurred())
 
 	cluster := kind.NewKind("local").
