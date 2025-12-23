@@ -6,6 +6,7 @@ import (
 
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/flanksource/clicky"
 	"github.com/flanksource/commons/logger"
@@ -54,6 +55,11 @@ var _ = Describe("Batch Runner Helm Chart", Ordered, func() {
 		})
 
 		It("Should send message and create file", func() {
+			// Apply fixture
+			result, err := k8s.ApplyFile(ctx, "./fixtures/exec.yaml")
+			Expect(err).NotTo(HaveOccurred())
+			logger.Infof(result.Pretty().ANSI())
+
 			fileName := fmt.Sprintf("file-%s", lo.RandomString(10, lo.LettersCharset))
 			args := []string{
 				fmt.Sprintf(`--endpoint-url=http://localhost:%d`, localStackPort),
@@ -68,6 +74,9 @@ var _ = Describe("Batch Runner Helm Chart", Ordered, func() {
 			logger.Infof(p.Result().Stderr)
 			Expect(p.Err).NotTo(HaveOccurred())
 			Expect(p.ExitCode()).To(Equal(0))
+
+			// Wait for sometime before checking if fixture created file
+			time.Sleep(10 * time.Second)
 
 			k := clicky.Exec("kubectl", "exec", controllerPodName, "--", "ls", fmt.Sprintf("/tmp/%s.txt", fileName)).Run()
 			logger.Infof(k.Result().Stdout)
