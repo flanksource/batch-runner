@@ -35,12 +35,16 @@ jobs:
         with:
           go-version: v1.25.x
 
-      - name: Install tools
-        uses: flanksource/deps@main
-        with:
-          tools: |
-            helm@v4.0.4
-            aws-cli@latest
+      #- name: Install tools
+        #uses: flanksource/deps@main
+        #with:
+          #tools: |
+            #helm@v4.0.4
+            #aws-cli@latest
+
+      - uses: azure/setup-helm@v4 
+        with:                     
+          version: v4.0.4         
 
       - uses: actions/cache@v4
         with:
