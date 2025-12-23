@@ -14,6 +14,21 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: v1.25.x
+
+      - name: Free up disk space
+        run: |
+          initial_space=$(df / | grep / | awk '{print $4}')
+          docker system prune -af
+          rm -rf /usr/share/dotnet
+          rm -rf /opt/ghc
+          rm -rf /usr/local/share/boost
+          rm -rf $AGENT_TOOLSDIRECTORY
+          rm -rf /opt/hostedtoolcache
+
+          final_space=$(df / | grep / | awk '{print $4}')
+          difference=$((final_space - initial_space))
+          echo "Disk space difference (in KB): $difference"
+
       - uses: actions/cache@v4
         with:
           path: |

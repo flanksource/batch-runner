@@ -19,6 +19,7 @@ import (
 	dutyctx "github.com/flanksource/duty/context"
 	dutyKubernetes "github.com/flanksource/duty/kubernetes"
 	"github.com/ghodss/yaml"
+	"github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"k8s.io/client-go/kubernetes"
@@ -35,7 +36,7 @@ var (
 )
 
 func TestPkg(t *testing.T) {
-
+	ginkgo.Skip("Not required, cover by e2e test")
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Pkg Suite")
 }
