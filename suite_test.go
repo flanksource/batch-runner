@@ -23,13 +23,18 @@ import (
 )
 
 var (
-	kubeconfig     string
-	namespace      string
-	chartPath      string
-	releaseName    string
-	ctx            flanksourceCtx.Context
-	stopChan       chan struct{}
-	localStackPort int
+	kubeconfig       string
+	namespace        string
+	chartPath        string
+	releaseName      string
+	ctx              flanksourceCtx.Context
+	stopChan         chan struct{}
+	localStackPort   int
+	awsLocalStackEnv = map[string]string{
+		"AWS_ACCESS_KEY_ID":     "test",
+		"AWS_SECRET_ACCESS_KEY": "test",
+		"AWS_DEFAULT_REGION":    "us-east-1",
+	}
 )
 
 var logg commonsLogger.Logger

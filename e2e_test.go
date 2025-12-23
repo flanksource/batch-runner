@@ -46,7 +46,7 @@ var _ = Describe("Batch Runner Helm Chart", Ordered, func() {
 
 		It("Should create queue in LocalStack", func() {
 			awsCmd := fmt.Sprintf("--endpoint-url=http://localhost:%d sqs create-queue --queue-name test-batch-runner --region us-east-1", localStackPort)
-			p := clicky.Exec("aws", strings.Split(awsCmd, " ")...).Run()
+			p := clicky.Exec("aws", strings.Split(awsCmd, " ")...).WithEnv(awsLocalStackEnv).Run()
 			logger.Infof(p.Result().Stdout)
 			logger.Infof(p.Result().Stderr)
 			Expect(p.Err).NotTo(HaveOccurred())
@@ -63,7 +63,7 @@ var _ = Describe("Batch Runner Helm Chart", Ordered, func() {
 				`--region`, `us-east-1`,
 			}
 
-			p := clicky.Exec("aws", args...).Run()
+			p := clicky.Exec("aws", args...).WithEnv(awsLocalStackEnv).Run()
 			logger.Infof(p.Result().Stdout)
 			logger.Infof(p.Result().Stderr)
 			Expect(p.Err).NotTo(HaveOccurred())
