@@ -21,10 +21,10 @@ jobs:
           rm -rf $AGENT_TOOLSDIRECTORY
           rm -rf /opt/hostedtoolcache
           # Remove Android SDK directories (common locations)
-          rm -rf /usr/local/lib/android
-          rm -rf /opt/android
-          rm -rf /usr/local/android-sdk
-          rm -rf /home/runner/Android
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/android
+          sudo rm -rf /usr/local/android-sdk
+          sudo rm -rf /home/runner/Android
 
           final_space=$(df / | grep / | awk '{print $4}')
           difference=$((final_space - initial_space))
