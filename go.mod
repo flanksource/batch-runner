@@ -12,7 +12,7 @@ require (
 	github.com/flanksource/clicky v1.12.0
 	github.com/flanksource/commons v1.43.2
 	github.com/flanksource/commons-db v0.1.1
-	github.com/flanksource/commons-test v0.1.9
+	github.com/flanksource/commons-test v0.1.10
 	github.com/flanksource/duty v1.0.1126
 	github.com/flanksource/gomplate/v3 v3.24.60
 	github.com/ghodss/yaml v1.0.0
