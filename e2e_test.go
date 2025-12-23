@@ -48,6 +48,7 @@ var _ = Describe("Batch Runner Helm Chart", Ordered, func() {
 			awsCmd := fmt.Sprintf("--endpoint-url=http://localhost:%d sqs create-queue --queue-name test-batch-runner --region us-east-1", localStackPort)
 			p := clicky.Exec("aws", strings.Split(awsCmd, " ")...).Run()
 			logger.Infof(p.Result().Stdout)
+			logger.Infof(p.Result().Stderr)
 			Expect(p.Err).NotTo(HaveOccurred())
 			Expect(p.ExitCode()).To(Equal(0))
 		})
