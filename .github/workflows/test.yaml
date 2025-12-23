@@ -36,7 +36,7 @@ jobs:
           go-version: v1.25.x
 
       - name: Install tools
-        uses: flanksource/deps@v1
+        uses: flanksource/deps@main
         with:
           tools: |
             helm@v4.0.4
