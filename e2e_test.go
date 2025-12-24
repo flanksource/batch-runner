@@ -1,9 +1,6 @@
 package main
 
 import (
-	//"github.com/flanksource/clicky"
-	//"github.com/flanksource/commons-test/helm"
-
 	"fmt"
 	"strings"
 	"time"
@@ -54,8 +51,7 @@ var _ = Describe("Batch Runner Helm Chart", Ordered, func() {
 			Expect(p.ExitCode()).To(Equal(0))
 		})
 
-		It("Should send message and create file", func() {
-			// Apply fixture
+		It("Should process message and create file", func() {
 			result, err := k8s.ApplyFile(ctx, "./fixtures/exec.yaml")
 			Expect(err).NotTo(HaveOccurred())
 			logger.Infof(result.Pretty().ANSI())
@@ -64,7 +60,7 @@ var _ = Describe("Batch Runner Helm Chart", Ordered, func() {
 			args := []string{
 				fmt.Sprintf(`--endpoint-url=http://localhost:%d`, localStackPort),
 				"sqs", "send-message",
-				fmt.Sprintf("--queue-url=http://localhost:%d/000000000000/test-batch-runner", localStackPort),
+				fmt.Sprintf("--queue-url=http://localhost:%d/000000000000/test-batch-runner-exec", localStackPort),
 				`--message-body`, fmt.Sprintf(`{"file": "%s"}`, fileName),
 				`--region`, `us-east-1`,
 			}
@@ -83,6 +79,62 @@ var _ = Describe("Batch Runner Helm Chart", Ordered, func() {
 			logger.Infof(k.Result().Stderr)
 			Expect(k.Err).NotTo(HaveOccurred())
 			Expect(k.ExitCode()).To(Equal(0))
+		})
+
+		It("Should process message and create a pod", func() {
+			result, err := k8s.ApplyFile(ctx, "./fixtures/pod.yaml")
+			Expect(err).NotTo(HaveOccurred())
+			logger.Infof(result.Pretty().ANSI())
+
+			podLabel := fmt.Sprintf("pod-%s", lo.RandomString(10, lo.LettersCharset))
+			args := []string{
+				fmt.Sprintf(`--endpoint-url=http://localhost:%d`, localStackPort),
+				"sqs", "send-message",
+				fmt.Sprintf("--queue-url=http://localhost:%d/000000000000/test-batch-runner-pod", localStackPort),
+				`--message-body`, fmt.Sprintf(`{"pod_label": "%s"}`, podLabel),
+				`--region`, `us-east-1`,
+			}
+
+			p := clicky.Exec("aws", args...).WithEnv(awsLocalStackEnv).Run()
+			logger.Infof(p.Result().Stdout)
+			logger.Infof(p.Result().Stderr)
+			Expect(p.Err).NotTo(HaveOccurred())
+			Expect(p.ExitCode()).To(Equal(0))
+
+			// Wait for sometime before checking if fixture created file
+			time.Sleep(10 * time.Second)
+
+			k8s.WaitForPod(ctx, "default", "test-pod", time.Minute*5)
+			Expect(err).NotTo(HaveOccurred())
+
+			pod, err := k8s.CoreV1().Pods("default").Get(ctx, "test-pod", metav1.GetOptions{})
+			Expect(err).NotTo(HaveOccurred(), "Failed to get test-pod: %v", err)
+			Expect(pod).NotTo(BeNil(), "Expected test-pod to be found")
+			Expect(pod.Labels["app"]).To(Equal(podLabel))
+		})
+
+		It("Should process message and create a job", func() {
+			result, err := k8s.ApplyFile(ctx, "./fixtures/job.yaml")
+			Expect(err).NotTo(HaveOccurred())
+			logger.Infof(result.Pretty().ANSI())
+
+			jobName := fmt.Sprintf("job-%s", lo.RandomString(10, lo.LettersCharset))
+			args := []string{
+				fmt.Sprintf(`--endpoint-url=http://localhost:%d`, localStackPort),
+				"sqs", "send-message",
+				fmt.Sprintf("--queue-url=http://localhost:%d/000000000000/test-batch-runner-job", localStackPort),
+				`--message-body`, fmt.Sprintf(`{"job_name": "%s"}`, jobName),
+				`--region`, `us-east-1`,
+			}
+
+			p := clicky.Exec("aws", args...).WithEnv(awsLocalStackEnv).Run()
+			logger.Infof(p.Result().Stdout)
+			logger.Infof(p.Result().Stderr)
+			Expect(p.Err).NotTo(HaveOccurred())
+			Expect(p.ExitCode()).To(Equal(0))
+
+			err = k8s.WaitForJob(ctx, "default", jobName, 5*time.Minute)
+			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 })

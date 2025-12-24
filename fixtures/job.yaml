@@ -1,0 +1,30 @@
+apiVersion: batch.flanksource.com/v1
+kind: BatchTrigger
+metadata:
+  name: '{{.job_name}}'
+  namespace: default
+spec:
+  sqs:
+    queue: arn:aws:sqs:us-east-1:000000000000:test-batch-runner-job
+    endpoint: http://localstack:4566
+    accessKey:
+      value: test
+    secretKey:
+      value: test
+    region: us-east-1
+    raw: false
+  job:
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: test-job
+      namespace: default
+    spec:
+      template:
+        spec:
+          containers:
+          - name: busybox
+            image: busybox:1.36
+            command: ["echo", "done"]
+          restartPolicy: Never
+      backoffLimit: 0
