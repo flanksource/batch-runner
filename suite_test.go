@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 	"testing"
 	"time"
 
@@ -16,7 +17,7 @@ import (
 	k8stest "github.com/flanksource/commons-test/kubernetes"
 	commonsLogger "github.com/flanksource/commons/logger"
 	_ "github.com/microsoft/go-mssqldb"
-	//v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"github.com/samber/lo"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -56,31 +57,36 @@ var _ = BeforeSuite(func() {
 	imageVersion := "test"
 	image := fmt.Sprintf("%s:%s", imageName, imageVersion)
 
+	cluster := kind.NewKind("local").WithServices(kind.ServiceLocalStack)
+
 	By("Docker Build")
-	p := command.NewCommandRunner(true).RunCommand("docker", "build", "-t", image, ".")
-	clicky.MustFormat(p.Stdout)
-	clicky.MustFormat(p.Stderr)
-	Expect(p.ExitCode).To(Equal(0))
-	Expect(p.Err).NotTo(HaveOccurred())
 
-	cluster := kind.NewKind("local").
-		WithServices(kind.ServiceLocalStack)
-
-	cluster.GetOrCreate().MustSucceed()
+	// Build Image and setup kind parallely
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		p := command.NewCommandRunner(true).RunCommand("docker", "build", "-t", image, ".")
+		clicky.MustFormat(p.Stdout)
+		clicky.MustFormat(p.Stderr)
+		Expect(p.ExitCode).To(Equal(0))
+		Expect(p.Err).NotTo(HaveOccurred())
+		wg.Done()
+	}()
+	go func() {
+		cluster.GetOrCreate().MustSucceed()
+		wg.Done()
+	}()
+	wg.Wait()
 
 	cluster.LoadImage(image)
 
 	// Get environment variables or use defaults
-	kubeconfig = os.Getenv("KUBECONFIG")
-	if kubeconfig == "" {
-		home := os.Getenv("HOME")
-		kubeconfig = filepath.Join(home, ".kube", "config")
-	}
+	kubeconfig = lo.CoalesceOrEmpty(
+		os.Getenv("KUBECONFIG"),
+		filepath.Join(os.Getenv("HOME"), ".kube", "config"),
+	)
 
-	namespace = os.Getenv("TEST_NAMESPACE")
-	if namespace == "" {
-		namespace = "default"
-	}
+	namespace = lo.CoalesceOrEmpty(os.Getenv("TEST_NAMESPACE"), "default")
 
 	releaseName = "controller-test"
 

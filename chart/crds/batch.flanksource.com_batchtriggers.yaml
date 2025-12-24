@@ -828,6 +828,7 @@ spec:
                       type: string
                     metadata:
                       type: object
+                      x-kubernetes-preserve-unknown-fields: true
                     spec:
                       properties:
                         activeDeadlineSeconds:
@@ -4790,6 +4791,7 @@ spec:
                           type: object
                       type: object
                   type: object
+                  x-kubernetes-preserve-unknown-fields: true
                 kafka:
                   properties:
                     brokers:
@@ -4833,6 +4835,7 @@ spec:
                       type: string
                     metadata:
                       type: object
+                      x-kubernetes-preserve-unknown-fields: true
                     spec:
                       properties:
                         activeDeadlineSeconds:
@@ -9359,6 +9362,7 @@ spec:
                           type: string
                       type: object
                   type: object
+                  x-kubernetes-preserve-unknown-fields: true
                 pubsub:
                   properties:
                     connection:

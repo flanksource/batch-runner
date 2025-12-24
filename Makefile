@@ -108,4 +108,7 @@ manifests: controller-gen
 	$(CONTROLLER_GEN) object paths="./pkg/apis/..."
 	$(CONTROLLER_GEN) crd paths="./pkg/apis/..." output:crd:artifacts:config=chart/crds
 	yq -i 'del(.. | .description? | select(.))' chart/crds/batch.flanksource.com_batchtriggers.yaml
+	# IMPORTANT: This is to preserve metadata for pod and job spec, without it metadata does not get parsed from batch trigger spec
+	yq -i '(.spec.versions[].schema.openAPIV3Schema.properties.spec.properties.pod.properties.metadata.x-kubernetes-preserve-unknown-fields) = true' chart/crds/batch.flanksource.com_batchtriggers.yaml
+	yq -i '(.spec.versions[].schema.openAPIV3Schema.properties.spec.properties.job.properties.metadata.x-kubernetes-preserve-unknown-fields) = true' chart/crds/batch.flanksource.com_batchtriggers.yaml
 
