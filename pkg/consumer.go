@@ -17,7 +17,6 @@ import (
 	"github.com/flanksource/duty/context"
 	dutyps "github.com/flanksource/duty/pubsub"
 	"github.com/flanksource/duty/shell"
-	"github.com/flanksource/duty/shutdown"
 	"github.com/flanksource/gomplate/v3"
 	"github.com/samber/lo"
 	"github.com/samber/oops"
@@ -34,6 +33,13 @@ import (
 
 var retry = NewRetryCache()
 
+type ConsumerCallbacks struct {
+	OnMessageProcessed func()
+	OnMessageFailed    func(err error)
+	OnMessageRetried   func()
+	OnConnectionChange func(state string)
+}
+
 func pretty(o any) string {
 	s, err := json.MarshalIndent(o, "", "  ")
 	if err != nil {
@@ -47,6 +53,10 @@ func pretty(o any) string {
 	return string(b)
 }
 func RunConsumer(rootCtx context.Context, config *v1.Config) error {
+	return RunConsumerWithCallbacks(rootCtx, config, nil)
+}
+
+func RunConsumerWithCallbacks(rootCtx context.Context, config *v1.Config, callbacks *ConsumerCallbacks) error {
 	if config.LogLevel != "" {
 		logger.StandardLogger().SetLogLevel(config.LogLevel)
 		rootCtx.Infof("Set log level to %s => %v", config.LogLevel, rootCtx.Logger.GetLevel())
@@ -56,19 +66,26 @@ func RunConsumer(rootCtx context.Context, config *v1.Config) error {
 
 	sub, err := dutyps.Subscribe(rootCtx, config.QueueConfig)
 	if err != nil {
+		if callbacks != nil && callbacks.OnConnectionChange != nil {
+			callbacks.OnConnectionChange("Error")
+		}
 		return oops.Wrapf(err, "Error building URL")
 	}
 
+	if callbacks != nil && callbacks.OnConnectionChange != nil {
+		callbacks.OnConnectionChange("Connected")
+	}
+
 	rootCtx.Infof("Consuming from %s", config.String())
-	ctx2, cancel := gocontext.WithCancel(gocontext.Background())
-	shutdown.AddHook(func() {
-		cancel()
-	})
 
 	for {
-		msg, err := sub.Receive(ctx2)
+		if rootCtx.Err() != nil {
+			return rootCtx.Err()
+		}
+
+		msg, err := sub.Receive(rootCtx)
 		if err != nil {
-			if err == gocontext.Canceled || ctx2.Err() == gocontext.Canceled {
+			if err == gocontext.Canceled || rootCtx.Err() != nil {
 				return nil
 			}
 			rootCtx.Errorf("Error receiving message: %v", err)
@@ -77,6 +94,7 @@ func RunConsumer(rootCtx context.Context, config *v1.Config) error {
 		} else if msg == nil {
 			rootCtx.Warnf("Queue is empty, waiting for 3 seconds")
 			time.Sleep(3 * time.Second)
+			continue
 		}
 
 		ctx := rootCtx.WithName(lo.CoalesceOrEmpty(msg.LoggableID, "unknown"))
@@ -116,6 +134,9 @@ func RunConsumer(rootCtx context.Context, config *v1.Config) error {
 
 			if err := templater.Walk(&pod); err != nil {
 				ctx.Errorf("Error templating Pod: %v", err)
+				if callbacks != nil && callbacks.OnMessageFailed != nil {
+					callbacks.OnMessageFailed(err)
+				}
 				msg.Ack()
 				continue
 			}
@@ -126,12 +147,15 @@ func RunConsumer(rootCtx context.Context, config *v1.Config) error {
 			if p == nil || p.CreationTimestamp.IsZero() {
 				p = pod
 			}
-			shouldRetry(ctx, msg, p, err)
+			shouldRetryWithCallbacks(ctx, msg, p, err, callbacks)
 		} else if config.Job != nil {
 			var job = config.Job.DeepCopy()
 
 			if err := templater.Walk(job); err != nil {
 				ctx.Errorf("Error templating job: %v", err)
+				if callbacks != nil && callbacks.OnMessageFailed != nil {
+					callbacks.OnMessageFailed(err)
+				}
 				msg.Ack()
 				continue
 			}
@@ -143,11 +167,14 @@ func RunConsumer(rootCtx context.Context, config *v1.Config) error {
 				created = job
 			}
 
-			shouldRetry(ctx, msg, created, err)
+			shouldRetryWithCallbacks(ctx, msg, created, err, callbacks)
 		} else if config.Exec != nil {
 			exec := *config.Exec
 			if err := templater.Walk(&exec); err != nil {
 				ctx.Errorf("Error templating exec: %v", err)
+				if callbacks != nil && callbacks.OnMessageFailed != nil {
+					callbacks.OnMessageFailed(err)
+				}
 				msg.Ack()
 				continue
 			}
@@ -157,6 +184,9 @@ func RunConsumer(rootCtx context.Context, config *v1.Config) error {
 			details, err := shell.Run(ctx, exec.ToShellExec())
 			if err == nil && details.ExitCode == 0 {
 				ctx.Tracef("%s", details.String())
+				if callbacks != nil && callbacks.OnMessageProcessed != nil {
+					callbacks.OnMessageProcessed()
+				}
 				msg.Ack()
 				continue
 			}
@@ -168,6 +198,11 @@ func RunConsumer(rootCtx context.Context, config *v1.Config) error {
 				}
 			}
 
+			execErr := err
+			if execErr == nil {
+				execErr = fmt.Errorf("script returned non-zero exit code: %s", details)
+			}
+
 			if err != nil {
 				ctx.Errorf("Error running %s: %s\n%s", exec.Script, err, details)
 			} else {
@@ -176,11 +211,17 @@ func RunConsumer(rootCtx context.Context, config *v1.Config) error {
 
 			delay := retry.GetBackoff(ctx, msg.LoggableID, exec.Retry)
 			if delay != nil {
+				if callbacks != nil && callbacks.OnMessageRetried != nil {
+					callbacks.OnMessageRetried()
+				}
 				if msg.Nackable() {
 					msg.Nack()
 				}
 				time.Sleep(*delay)
 			} else {
+				if callbacks != nil && callbacks.OnMessageFailed != nil {
+					callbacks.OnMessageFailed(execErr)
+				}
 				msg.Ack()
 			}
 
@@ -191,21 +232,34 @@ func RunConsumer(rootCtx context.Context, config *v1.Config) error {
 }
 
 func shouldRetry(ctx context.Context, msg *pubsub.Message, accessor metav1.ObjectMetaAccessor, err error) {
+	shouldRetryWithCallbacks(ctx, msg, accessor, err, nil)
+}
+
+func shouldRetryWithCallbacks(ctx context.Context, msg *pubsub.Message, accessor metav1.ObjectMetaAccessor, err error, callbacks *ConsumerCallbacks) {
 	o := accessor.GetObjectMeta()
 	name := fmt.Sprintf("%s/%s (uid=%s)", o.GetNamespace(), o.GetName(), o.GetUID())
 	if err == nil {
 		ctx.Infof("Created %s", name)
+		if callbacks != nil && callbacks.OnMessageProcessed != nil {
+			callbacks.OnMessageProcessed()
+		}
 		msg.Ack()
 		return
 	}
 	if !IsRetryableError(err) {
 		ctx.Errorf("Unretryable error creating: %v\n%s", err, pretty(accessor))
+		if callbacks != nil && callbacks.OnMessageFailed != nil {
+			callbacks.OnMessageFailed(err)
+		}
 		msg.Ack()
 		return
 	}
 	_delay := time.Second * 5
 	if delay, ok := kerrors.SuggestsClientDelay(err); ok {
 		_delay = time.Duration(delay)
+	}
+	if callbacks != nil && callbacks.OnMessageRetried != nil {
+		callbacks.OnMessageRetried()
 	}
 	if msg.Nackable() {
 		msg.Nack()

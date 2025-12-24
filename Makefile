@@ -71,12 +71,13 @@ lint:
 	golangci-lint run -v ./...
 
 .PHONY: build
-build:
-	go build -o $(NAME) -ldflags "-X \"main.version=$(VERSION_TAG)\"" .
+build:  $(LOCALBIN)
+	go build -o $(LOCALBIN)/$(NAME) -ldflags "-X \"main.version=$(VERSION_TAG)\"" .
 
 .PHONY: install
 install:
 	cp $(LOCALBIN)/$(NAME) /usr/local/bin/
+
 
 LOCALBIN = $(shell pwd)/.bin
 ENVTEST ?= $(LOCALBIN)/setup-envtest
@@ -105,5 +106,6 @@ $(CONTROLLER_GEN): $(LOCALBIN)
 .PHONY: manifests
 manifests: controller-gen
 	$(CONTROLLER_GEN) object paths="./pkg/apis/..."
-	$(CONTROLLER_GEN) crd paths="./pkg/apis/..." output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) crd paths="./pkg/apis/..." output:crd:artifacts:config=chart/crds
+	yq -i 'del(.. | .description? | select(.))' chart/crds/batch.flanksource.com_batchtriggers.yaml
 

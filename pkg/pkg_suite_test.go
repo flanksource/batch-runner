@@ -35,7 +35,7 @@ var (
 )
 
 func TestPkg(t *testing.T) {
-
+	t.Skip("Not required, cover by e2e test")
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Pkg Suite")
 }

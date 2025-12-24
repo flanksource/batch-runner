@@ -88,6 +88,10 @@ jobs:
           platforms: ${{ matrix.platform }}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
           tags: flanksource/batch-runner
+          provenance: false
+          sbom: false
+          secrets: |
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
       - name: Export digest
         run: |

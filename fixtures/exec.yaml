@@ -1,0 +1,16 @@
+apiVersion: batch.flanksource.com/v1
+kind: BatchTrigger
+metadata:
+  name: test-exec
+spec:
+  exec:
+    script: "touch /tmp/{{.file}}.txt"
+  sqs:
+    queue: arn:aws:sqs:us-east-1:000000000000:test-batch-runner
+    endpoint: http://localstack:4566
+    accessKey:
+      value: test
+    secretKey:
+      value: test
+    region: us-east-1
+    raw: false

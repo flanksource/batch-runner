@@ -16,12 +16,50 @@ import (
 
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:scope=Namespaced,shortName=batch
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Queue",type=string,JSONPath=`.status.connectionState`
+// +kubebuilder:printcolumn:name="Processed",type=integer,JSONPath=`.status.messagesProcessed`
+// +kubebuilder:printcolumn:name="Failed",type=integer,JSONPath=`.status.messagesFailed`
+// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // BatchTrigger is the Schema for the batch-runner configuration
 type BatchTrigger struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec Config `json:"spec,omitempty"`
+	Spec   Config             `json:"spec,omitempty"`
+	Status BatchTriggerStatus `json:"status,omitempty"`
+}
+
+// BatchTriggerStatus defines the observed state of BatchTrigger
+type BatchTriggerStatus struct {
+	// ConnectionState indicates queue connection status: Connected, Disconnected, Error
+	ConnectionState string `json:"connectionState,omitempty"`
+
+	// MessagesProcessed is the total number of successfully processed messages
+	MessagesProcessed int64 `json:"messagesProcessed,omitempty"`
+
+	// MessagesFailed is the total number of failed messages
+	MessagesFailed int64 `json:"messagesFailed,omitempty"`
+
+	// MessagesRetried is the total number of retried messages
+	MessagesRetried int64 `json:"messagesRetried,omitempty"`
+
+	// LastError contains the most recent error message
+	LastError string `json:"lastError,omitempty"`
+
+	// LastErrorTime is when the last error occurred
+	LastErrorTime *metav1.Time `json:"lastErrorTime,omitempty"`
+
+	// Conditions represent the latest available observations of the BatchTrigger's state
+	Conditions []metav1.Condition `json:"conditions,omitempty"`
+}
+
+// +kubebuilder:object:root=true
+// BatchTriggerList contains a list of BatchTrigger
+type BatchTriggerList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+	Items           []BatchTrigger `json:"items"`
 }
 
 // Config defines the desired state of BatchTrigger
