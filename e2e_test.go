@@ -123,7 +123,7 @@ var _ = Describe("Batch Runner Helm Chart", Ordered, func() {
 			Expect(err).NotTo(HaveOccurred())
 			logger.Infof(result.Pretty().ANSI())
 
-			jobName := fmt.Sprintf("job-%s", lo.RandomString(10, lo.LettersCharset))
+			jobName := fmt.Sprintf("job-%s", lo.RandomString(10, lo.LowerCaseLettersCharset))
 			args := []string{
 				fmt.Sprintf(`--endpoint-url=http://localhost:%d`, localStackPort),
 				"sqs", "send-message",

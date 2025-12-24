@@ -111,4 +111,5 @@ manifests: controller-gen
 	# IMPORTANT: This is to preserve metadata for pod and job spec, without it metadata does not get parsed from batch trigger spec
 	yq -i '(.spec.versions[].schema.openAPIV3Schema.properties.spec.properties.pod.properties.metadata.x-kubernetes-preserve-unknown-fields) = true' chart/crds/batch.flanksource.com_batchtriggers.yaml
 	yq -i '(.spec.versions[].schema.openAPIV3Schema.properties.spec.properties.job.properties.metadata.x-kubernetes-preserve-unknown-fields) = true' chart/crds/batch.flanksource.com_batchtriggers.yaml
+	yq -i '(.spec.versions[].schema.openAPIV3Schema.properties.spec.properties.job.properties.spec.properties.template.properties.metadata.x-kubernetes-preserve-unknown-fields) = true' chart/crds/batch.flanksource.com_batchtriggers.yaml
 
