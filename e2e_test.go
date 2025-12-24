@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/flanksource/clicky"
@@ -13,12 +12,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// Helm tests using fluent interface from commons
 var _ = Describe("Batch Runner Helm Chart", Ordered, func() {
 
 	var controllerPodName string
 	Context("Batch Runner", func() {
-		It("Is Installed", func() {
+		It("Chart is installed", func() {
 			status, err := chart.GetStatus()
 			if status != nil {
 				By(status.Pretty().ANSI())
@@ -42,13 +40,20 @@ var _ = Describe("Batch Runner Helm Chart", Ordered, func() {
 			Expect(string(pod.Status.Phase)).To(Equal("Running"))
 		})
 
-		It("Should create queue in LocalStack", func() {
-			awsCmd := fmt.Sprintf("--endpoint-url=http://localhost:%d sqs create-queue --queue-name test-batch-runner --region us-east-1", localStackPort)
-			p := clicky.Exec("aws", strings.Split(awsCmd, " ")...).WithEnv(awsLocalStackEnv).Run()
-			logger.Infof(p.Result().Stdout)
-			logger.Infof(p.Result().Stderr)
-			Expect(p.Err).NotTo(HaveOccurred())
-			Expect(p.ExitCode()).To(Equal(0))
+		It("Should create the queues in LocalStack", func() {
+			queues := []string{"test-batch-runner-exec", "test-batch-runner-pod", "test-batch-runner-job"}
+			for _, queueName := range queues {
+				args := []string{
+					fmt.Sprintf("--endpoint-url=http://localhost:%d", localStackPort),
+					"sqs", "create-queue", "--queue-name", queueName,
+					"--region us-east-1",
+				}
+				p := clicky.Exec("aws", args...).WithEnv(awsLocalStackEnv).Run()
+				logger.Infof(p.Result().Stdout)
+				logger.Infof(p.Result().Stderr)
+				Expect(p.Err).NotTo(HaveOccurred())
+				Expect(p.ExitCode()).To(Equal(0))
+			}
 		})
 
 		It("Should process message and create file", func() {
