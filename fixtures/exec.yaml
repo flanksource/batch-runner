@@ -6,7 +6,7 @@ spec:
   exec:
     script: "touch /tmp/{{.file}}.txt"
   sqs:
-    queue: arn:aws:sqs:us-east-1:000000000000:test-batch-runner
+    queue: arn:aws:sqs:us-east-1:000000000000:test-batch-runner-exec
     endpoint: http://localstack:4566
     accessKey:
       value: test

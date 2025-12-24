@@ -828,6 +828,7 @@ spec:
                       type: string
                     metadata:
                       type: object
+                      x-kubernetes-preserve-unknown-fields: true
                     spec:
                       properties:
                         activeDeadlineSeconds:
@@ -948,6 +949,7 @@ spec:
                           properties:
                             metadata:
                               type: object
+                              x-kubernetes-preserve-unknown-fields: true
                             spec:
                               properties:
                                 activeDeadlineSeconds:
@@ -4833,6 +4835,7 @@ spec:
                       type: string
                     metadata:
                       type: object
+                      x-kubernetes-preserve-unknown-fields: true
                     spec:
                       properties:
                         activeDeadlineSeconds:

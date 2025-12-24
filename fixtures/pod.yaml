@@ -1,0 +1,27 @@
+apiVersion: batch.flanksource.com/v1
+kind: BatchTrigger
+metadata:
+  name: test-pod
+spec:
+  sqs:
+    queue: arn:aws:sqs:us-east-1:000000000000:test-batch-runner-pod
+    endpoint: http://localstack:4566
+    accessKey:
+      value: test
+    secretKey:
+      value: test
+    region: us-east-1
+    raw: false
+  pod:
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: test-pod
+      namespace: default
+      labels:
+        app: '{{.pod_label}}'
+    spec:
+      containers:
+      - name: busybox
+        image: busybox:latest
+        command: ["sleep", "infinity"]
