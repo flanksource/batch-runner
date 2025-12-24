@@ -46,7 +46,7 @@ var _ = Describe("Batch Runner Helm Chart", Ordered, func() {
 				args := []string{
 					fmt.Sprintf("--endpoint-url=http://localhost:%d", localStackPort),
 					"sqs", "create-queue", "--queue-name", queueName,
-					"--region us-east-1",
+					"--region", "us-east-1",
 				}
 				p := clicky.Exec("aws", args...).WithEnv(awsLocalStackEnv).Run()
 				logger.Infof(p.Result().Stdout)
