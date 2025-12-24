@@ -1,7 +1,7 @@
 apiVersion: batch.flanksource.com/v1
 kind: BatchTrigger
 metadata:
-  name: '{{.job_name}}'
+  name: test-job
   namespace: default
 spec:
   sqs:
@@ -17,7 +17,7 @@ spec:
     apiVersion: batch/v1
     kind: Job
     metadata:
-      name: test-job
+      name: '{{.job_name}}'
       namespace: default
     spec:
       template:

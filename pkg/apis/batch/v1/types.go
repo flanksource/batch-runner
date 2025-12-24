@@ -66,11 +66,9 @@ type BatchTriggerList struct {
 // +kubebuilder:object:generate=true
 type Config struct {
 	// +optional
-	LogLevel string `json:"logLevel,omitempty"`
-	// +kubebuilder:pruning:PreserveUnknownFields
-	Pod *corev1.Pod `json:"pod,omitempty"`
-	// +kubebuilder:pruning:PreserveUnknownFields
-	Job *batchv1.Job `json:"job,omitempty"`
+	LogLevel           string       `json:"logLevel,omitempty"`
+	Pod                *corev1.Pod  `json:"pod,omitempty"`
+	Job                *batchv1.Job `json:"job,omitempty"`
 	Exec               *ExecAction  `json:"exec,omitempty"`
 	dutyps.QueueConfig `json:",inline"`
 }

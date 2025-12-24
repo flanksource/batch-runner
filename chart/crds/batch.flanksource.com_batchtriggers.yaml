@@ -4791,7 +4791,6 @@ spec:
                           type: object
                       type: object
                   type: object
-                  x-kubernetes-preserve-unknown-fields: true
                 kafka:
                   properties:
                     brokers:
@@ -9362,7 +9361,6 @@ spec:
                           type: string
                       type: object
                   type: object
-                  x-kubernetes-preserve-unknown-fields: true
                 pubsub:
                   properties:
                     connection:
