@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sync"
 	"testing"
 	"time"
 
@@ -51,32 +50,25 @@ func TestHelm(t *testing.T) {
 
 var chart *helm.HelmChart
 
+const localStackWaitTimeout = 10 * time.Minute
+
 var _ = BeforeSuite(func() {
 
 	imageName := "batch-runner"
 	imageVersion := "test"
 	image := fmt.Sprintf("%s:%s", imageName, imageVersion)
 
-	cluster := kind.NewKind("local").WithServices(kind.ServiceLocalStack)
+	cluster := kind.NewKind("local")
 
 	By("Docker Build")
 
-	// Build Image and setup kind parallely
-	var wg sync.WaitGroup
-	wg.Add(2)
-	go func() {
-		p := command.NewCommandRunner(true).RunCommand("docker", "build", "-t", image, ".")
-		clicky.MustFormat(p.Stdout)
-		clicky.MustFormat(p.Stderr)
-		Expect(p.ExitCode).To(Equal(0))
-		Expect(p.Err).NotTo(HaveOccurred())
-		wg.Done()
-	}()
-	go func() {
-		cluster.GetOrCreate().MustSucceed()
-		wg.Done()
-	}()
-	wg.Wait()
+	p := command.NewCommandRunner(true).RunCommand("docker", "build", "-t", image, ".")
+	clicky.MustFormat(p.Stdout)
+	clicky.MustFormat(p.Stderr)
+	Expect(p.ExitCode).To(Equal(0))
+	Expect(p.Err).NotTo(HaveOccurred())
+
+	cluster.GetOrCreate().MustSucceed()
 
 	cluster.LoadImage(image)
 
@@ -102,6 +94,14 @@ var _ = BeforeSuite(func() {
 	var err error
 	k8s, err = ctx.LocalKubernetes(kubeconfig)
 	Expect(err).NotTo(HaveOccurred())
+
+	By("Installing Localstack")
+	Expect(helm.NewHelmChart(ctx, "localstack/localstack").
+		Repository("localstack", "https://localstack.github.io/helm-charts").
+		Release("localstack").
+		Namespace(namespace).
+		WaitFor(localStackWaitTimeout).
+		InstallOrUpgrade()).NotTo(HaveOccurred())
 
 	By("Installing Batch Runner")
 	chart = helm.NewHelmChart(ctx, "./chart/")
