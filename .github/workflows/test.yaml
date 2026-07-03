@@ -33,7 +33,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: v1.25.x
+          go-version: v1.26.x
 
       #- name: Install tools
         #uses: flanksource/deps@main
