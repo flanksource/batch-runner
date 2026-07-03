@@ -132,7 +132,7 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 
 	By("Installing Localstack")
-	err = helm.NewHelmChart(ctx, "localstack/localstack").
+	err = helm.NewHelmChart(ctx, "localstack").
 		Repository("localstack", "https://localstack.github.io/helm-charts").
 		Release("localstack").
 		Namespace(namespace).
