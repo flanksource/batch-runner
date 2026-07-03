@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sync"
 	"testing"
 	"time"
 
@@ -51,34 +50,63 @@ func TestHelm(t *testing.T) {
 
 var chart *helm.HelmChart
 
+const (
+	localStackWaitTimeout = 10 * time.Minute
+
+	// Since localstack/helm-charts#148 (Mar 2026) the chart defaults to the
+	// localstack/localstack-pro image, which requires an auth token and never
+	// becomes ready without one. Pin the community image at the version that
+	// was current when this suite was introduced.
+	localStackImageRepo = "localstack/localstack"
+	localStackImageTag  = "4.12.0"
+)
+
+// dumpKubeDiagnostics prints pod, event and localstack log details so a
+// failed helm --wait surfaces the underlying pod state in CI logs.
+func dumpKubeDiagnostics(ns string) {
+	runner := command.NewCommandRunner(true)
+	for _, args := range [][]string{
+		{"get", "pods", "-n", ns, "-o", "wide"},
+		{"get", "events", "-n", ns, "--sort-by=.lastTimestamp"},
+		{"describe", "deployment", "-n", ns},
+		{"logs", "-n", ns, "-l", "app.kubernetes.io/name=localstack", "--tail=100"},
+	} {
+		p := runner.RunCommand("kubectl", args...)
+		clicky.MustFormat(p.Stdout)
+		clicky.MustFormat(p.Stderr)
+	}
+}
+
 var _ = BeforeSuite(func() {
 
 	imageName := "batch-runner"
 	imageVersion := "test"
 	image := fmt.Sprintf("%s:%s", imageName, imageVersion)
+	localStackImage := fmt.Sprintf("%s:%s", localStackImageRepo, localStackImageTag)
 
-	cluster := kind.NewKind("local").WithServices(kind.ServiceLocalStack)
+	cluster := kind.NewKind("local")
 
 	By("Docker Build")
 
-	// Build Image and setup kind parallely
-	var wg sync.WaitGroup
-	wg.Add(2)
-	go func() {
-		p := command.NewCommandRunner(true).RunCommand("docker", "build", "-t", image, ".")
-		clicky.MustFormat(p.Stdout)
-		clicky.MustFormat(p.Stderr)
-		Expect(p.ExitCode).To(Equal(0))
-		Expect(p.Err).NotTo(HaveOccurred())
-		wg.Done()
-	}()
-	go func() {
-		cluster.GetOrCreate().MustSucceed()
-		wg.Done()
-	}()
-	wg.Wait()
+	p := command.NewCommandRunner(true).RunCommand("docker", "build", "-t", image, ".")
+	clicky.MustFormat(p.Stdout)
+	clicky.MustFormat(p.Stderr)
+	Expect(p.ExitCode).To(Equal(0))
+	Expect(p.Err).NotTo(HaveOccurred())
+
+	// Pull on the host and side-load into kind so the node never pulls from
+	// Docker Hub (unauthenticated in-node pulls are rate-limited on CI).
+	By("Pulling LocalStack image")
+	p = command.NewCommandRunner(true).RunCommand("docker", "pull", localStackImage)
+	clicky.MustFormat(p.Stdout)
+	clicky.MustFormat(p.Stderr)
+	Expect(p.ExitCode).To(Equal(0))
+	Expect(p.Err).NotTo(HaveOccurred())
+
+	cluster.GetOrCreate().MustSucceed()
 
 	cluster.LoadImage(image)
+	cluster.LoadImage(localStackImage)
 
 	// Get environment variables or use defaults
 	kubeconfig = lo.CoalesceOrEmpty(
@@ -103,10 +131,29 @@ var _ = BeforeSuite(func() {
 	k8s, err = ctx.LocalKubernetes(kubeconfig)
 	Expect(err).NotTo(HaveOccurred())
 
+	By("Installing Localstack")
+	err = helm.NewHelmChart(ctx, "localstack/localstack").
+		Repository("localstack", "https://localstack.github.io/helm-charts").
+		Release("localstack").
+		Namespace(namespace).
+		WaitFor(localStackWaitTimeout).
+		Values(map[string]any{
+			"image": map[string]any{
+				"repository": localStackImageRepo,
+				"tag":        localStackImageTag,
+				"pullPolicy": "IfNotPresent",
+			},
+		}).
+		InstallOrUpgrade()
+	if err != nil {
+		dumpKubeDiagnostics(namespace)
+	}
+	Expect(err).NotTo(HaveOccurred())
+
 	By("Installing Batch Runner")
 	chart = helm.NewHelmChart(ctx, "./chart/")
 
-	Expect(chart.
+	err = chart.
 		Release(releaseName).Namespace(namespace).
 		WaitFor(time.Minute * 5).
 		ForceConflicts().
@@ -116,7 +163,11 @@ var _ = BeforeSuite(func() {
 				"tag":        imageVersion,
 			},
 		}).
-		InstallOrUpgrade()).NotTo(HaveOccurred())
+		InstallOrUpgrade()
+	if err != nil {
+		dumpKubeDiagnostics(namespace)
+	}
+	Expect(err).NotTo(HaveOccurred())
 
 	// Ensure localstack running
 	localStackPort, stopChan, err = k8stest.PortForwardPod(ctx.Context.Context, k8s.Interface, kubeconfig, namespace, "app.kubernetes.io/name=localstack", 4566)
