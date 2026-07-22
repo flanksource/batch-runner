@@ -318,6 +318,8 @@ github.com/felixge/httpsnoop v1.1.0 h1:3YtUj32ZZkqZtt3sZZsClsymw/QDuVfpNhoA31zeO
 github.com/felixge/httpsnoop v1.1.0/go.mod h1:Zqxgdd+1Rkcz8euOqdr7lqgCRJztwr5hp9vDSi5UZCE=
 github.com/flanksource/artifacts v1.0.25-0.20260702143945-3b166a2a85ed h1:Nx7Y66bfeODtQ0+Laznx9Sa94T4stb/sy1kSoaWutOo=
 github.com/flanksource/artifacts v1.0.25-0.20260702143945-3b166a2a85ed/go.mod h1:lPV4nx3sMJk26v7mYHDaVc5MYeIyUSqPuigc5PYtoTc=
+github.com/flanksource/artifacts v1.0.25-0.20260716120410-67b19dbf44e3 h1:TEYKOlZ8Aqdu7FJW/fRmRok38t3tLoKb21BD0zVIS50=
+github.com/flanksource/artifacts v1.0.25-0.20260716120410-67b19dbf44e3/go.mod h1:tWywxTnU2MW1E/qixVByUeLqANMyT7S8XIdbWnJtpDo=
 github.com/flanksource/clicky v1.21.32 h1:FtsA+ri3Yc4lOtAioNwINfNzA8Y4jmoiUIdGPP8m658=
 github.com/flanksource/clicky v1.21.32/go.mod h1:uBNJGvYzz3+RLSA9IXod4oVLs5QV7PBQ3WBpeW9Xs0E=
 github.com/flanksource/commons v1.53.1 h1:WiMvY9XGG//L4ndYKTcmp0NjWXg4B7Wbn4hYWkITUmY=
