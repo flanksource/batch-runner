@@ -9,9 +9,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sns v1.39.14
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.44.0
 	github.com/eko/gocache/lib/v4 v4.2.3
-	github.com/flanksource/clicky v1.21.42
+	github.com/flanksource/clicky v1.21.43
 	github.com/flanksource/commons v1.53.1
-	github.com/flanksource/commons-db v0.1.20
+	github.com/flanksource/commons-db v0.1.21
 	github.com/flanksource/commons-test v0.1.15
 	github.com/flanksource/duty v1.0.1352
 	github.com/flanksource/gomplate/v3 v3.24.84
@@ -138,7 +138,7 @@ require (
 	github.com/exaring/otelpgx v0.11.1 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/httpsnoop v1.1.0 // indirect
-	github.com/flanksource/artifacts v1.0.25-0.20260722133254-692082ddfdf8 // indirect
+	github.com/flanksource/artifacts v1.0.25-0.20260722192852-f8c18d68d065 // indirect
 	github.com/flanksource/deps v1.0.36 // indirect
 	github.com/flanksource/is-healthy v1.0.88 // indirect
 	github.com/flanksource/kubectl-neat v1.0.4 // indirect
