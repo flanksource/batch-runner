@@ -320,10 +320,14 @@ github.com/flanksource/artifacts v1.0.25-0.20260702143945-3b166a2a85ed h1:Nx7Y66
 github.com/flanksource/artifacts v1.0.25-0.20260702143945-3b166a2a85ed/go.mod h1:lPV4nx3sMJk26v7mYHDaVc5MYeIyUSqPuigc5PYtoTc=
 github.com/flanksource/clicky v1.21.32 h1:FtsA+ri3Yc4lOtAioNwINfNzA8Y4jmoiUIdGPP8m658=
 github.com/flanksource/clicky v1.21.32/go.mod h1:uBNJGvYzz3+RLSA9IXod4oVLs5QV7PBQ3WBpeW9Xs0E=
+github.com/flanksource/clicky v1.21.37-0.20260715094201-d847a9108f43 h1:8SNaLRmA64xea5//NrSobiFKXr7cq4yz6NGvt9xl3JE=
+github.com/flanksource/clicky v1.21.37-0.20260715094201-d847a9108f43/go.mod h1:832IbjMZgsqGYF2fwskgUZ6zrvf7qfxpFv3mfLO2DWg=
 github.com/flanksource/commons v1.53.1 h1:WiMvY9XGG//L4ndYKTcmp0NjWXg4B7Wbn4hYWkITUmY=
 github.com/flanksource/commons v1.53.1/go.mod h1:ZII22jIDJ3fd/Mz7l0SzLFEv8aoSUg+xwfJAAVf8up4=
 github.com/flanksource/commons-db v0.1.13 h1:ds+QRLiiFtHk7ewEfQoaGcBcXqcJxG0qW7yploLbrr8=
 github.com/flanksource/commons-db v0.1.13/go.mod h1:EGQjugWW+QYvZcBhleb9QzDs1xhNrezf9V1NKsofQ6g=
+github.com/flanksource/commons-db v0.1.19 h1:54TYRZ8r262lHW/2AGmIFzmPaRKaubk1mUyk54CDgds=
+github.com/flanksource/commons-db v0.1.19/go.mod h1:Td/fCQmw3S0hBVBHI/6pjE/xk4KB91/FI/V1QMcHV8U=
 github.com/flanksource/commons-test v0.1.14 h1:/gfcR2OweJ+Th7OvyJbwKZNYmrlOik//+aYMXM7sMBk=
 github.com/flanksource/commons-test v0.1.14/go.mod h1:tggThXQWjdZI0MDAOa8r70oHpl3d+G4U3+r/3aD6+dc=
 github.com/flanksource/deps v1.0.35 h1:tHxhkJSsJBWRmx7lR/X1rI8diz6tu0dsGb7GCROfuIQ=
@@ -843,6 +847,8 @@ github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9dec
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/yuin/goldmark v1.7.13 h1:GPddIs617DnBLFFVJFgpo1aBfe/4xcvMc3SB5t/D0pA=
 github.com/yuin/goldmark v1.7.13/go.mod h1:ip/1k0VRfGynBgxOz0yCqHrbZXhcjxyuS66Brc7iBKg=
+github.com/yuin/goldmark v1.7.17 h1:p36OVWwRb246iHxA/U4p8OPEpOTESm4n+g+8t0EE5uA=
+github.com/yuin/goldmark v1.7.17/go.mod h1:ip/1k0VRfGynBgxOz0yCqHrbZXhcjxyuS66Brc7iBKg=
 github.com/yuin/gopher-lua v1.1.1 h1:kYKnWBjvbNP4XLT3+bPEwAXJx262OhaHDWDVOPjL46M=
 github.com/yuin/gopher-lua v1.1.1/go.mod h1:GBR0iDaNXjAgGg9zfCvksxSRnQx76gclCIb7kdAd1Pw=
 github.com/yusufpapurcu/wmi v1.2.4 h1:zFUKzehAFReQwLys1b/iSMl+JQGSCSjtVqQn9bBrPo0=
