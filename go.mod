@@ -138,7 +138,7 @@ require (
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/httpsnoop v1.1.0 // indirect
 	github.com/flanksource/artifacts v1.0.25-0.20260702143945-3b166a2a85ed // indirect
-	github.com/flanksource/deps v1.0.35 // indirect
+	github.com/flanksource/deps v1.0.36 // indirect
 	github.com/flanksource/is-healthy v1.0.88 // indirect
 	github.com/flanksource/kubectl-neat v1.0.4 // indirect
 	github.com/flanksource/sandbox-runtime v1.0.2 // indirect
