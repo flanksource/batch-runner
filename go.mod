@@ -9,11 +9,11 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sns v1.39.14
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.44.0
 	github.com/eko/gocache/lib/v4 v4.2.3
-	github.com/flanksource/clicky v1.21.32
+	github.com/flanksource/clicky v1.21.40
 	github.com/flanksource/commons v1.53.1
-	github.com/flanksource/commons-db v0.1.13
-	github.com/flanksource/commons-test v0.1.14
-	github.com/flanksource/duty v1.0.1347
+	github.com/flanksource/commons-db v0.1.20
+	github.com/flanksource/commons-test v0.1.15
+	github.com/flanksource/duty v1.0.1352
 	github.com/flanksource/gomplate/v3 v3.24.84
 	github.com/ghodss/yaml v1.0.0
 	github.com/microsoft/go-mssqldb v1.10.0
@@ -135,10 +135,11 @@ require (
 	github.com/envoyproxy/protoc-gen-validate v1.3.3 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
 	github.com/evanphx/json-patch/v5 v5.9.11 // indirect
+	github.com/exaring/otelpgx v0.11.1 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/httpsnoop v1.1.0 // indirect
-	github.com/flanksource/artifacts v1.0.25-0.20260702143945-3b166a2a85ed // indirect
-	github.com/flanksource/deps v1.0.35 // indirect
+	github.com/flanksource/artifacts v1.0.25-0.20260716120410-67b19dbf44e3 // indirect
+	github.com/flanksource/deps v1.0.36 // indirect
 	github.com/flanksource/is-healthy v1.0.88 // indirect
 	github.com/flanksource/kubectl-neat v1.0.4 // indirect
 	github.com/flanksource/sandbox-runtime v1.0.2 // indirect
@@ -319,7 +320,7 @@ require (
 	github.com/xuri/efp v0.0.1 // indirect
 	github.com/xuri/excelize/v2 v2.11.0 // indirect
 	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
-	github.com/yuin/goldmark v1.7.13 // indirect
+	github.com/yuin/goldmark v1.7.17 // indirect
 	github.com/yuin/gopher-lua v1.1.1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
