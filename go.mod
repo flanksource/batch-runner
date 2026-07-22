@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sns v1.39.14
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.44.0
 	github.com/eko/gocache/lib/v4 v4.2.3
-	github.com/flanksource/clicky v1.21.32
+	github.com/flanksource/clicky v1.21.40
 	github.com/flanksource/commons v1.53.1
 	github.com/flanksource/commons-db v0.1.13
 	github.com/flanksource/commons-test v0.1.14
@@ -319,7 +319,7 @@ require (
 	github.com/xuri/efp v0.0.1 // indirect
 	github.com/xuri/excelize/v2 v2.11.0 // indirect
 	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
-	github.com/yuin/goldmark v1.7.13 // indirect
+	github.com/yuin/goldmark v1.7.16 // indirect
 	github.com/yuin/gopher-lua v1.1.1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
