@@ -9,9 +9,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sns v1.39.14
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.44.0
 	github.com/eko/gocache/lib/v4 v4.2.3
-	github.com/flanksource/clicky v1.21.43
+	github.com/flanksource/clicky v1.21.48
 	github.com/flanksource/commons v1.53.1
-	github.com/flanksource/commons-db v0.1.21
+	github.com/flanksource/commons-db v0.1.22
 	github.com/flanksource/commons-test v0.1.15
 	github.com/flanksource/duty v1.0.1352
 	github.com/flanksource/gomplate/v3 v3.24.84
