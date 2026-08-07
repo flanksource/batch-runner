@@ -79,6 +79,8 @@ github.com/AzureAD/microsoft-authentication-library-for-go v1.7.2/go.mod h1:HKpQ
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.31.0 h1:DHa2U07rk8syqvCge0QIGMCE1WxGj9njT44GH7zNJLQ=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.31.0/go.mod h1:P4WPRUkOhJC13W//jWpyfJNDAIpvRbAUIYLX/4jtlE0=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.32.0 h1:rIkQfkCOVKc1OiRCNcSDD8ml5RJlZbH/Xsq7lbpynwc=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.32.0/go.mod h1:RD2SsorTmYhF6HkTmDw7KmPYQk8OBYwTkuasChwv7R4=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.55.0 h1:UnDZ/zFfG1JhH/DqxIZYU/1CUAlTUScoXD/LcM2Ykk8=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.55.0/go.mod h1:IA1C1U7jO/ENqm/vhi7V9YYpBsp+IMyqNrEN94N7tVc=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/cloudmock v0.55.0 h1:7t/qx5Ost0s0wbA/VDrByOooURhp+ikYwv20i9Y07TQ=
@@ -326,6 +328,8 @@ github.com/flanksource/artifacts v1.0.25-0.20260722133254-692082ddfdf8 h1:/l3ikP
 github.com/flanksource/artifacts v1.0.25-0.20260722133254-692082ddfdf8/go.mod h1:c3S2ZvDLQcoRZuNY/5foE0K34AJ2z8aJ0qKXeRv5WaM=
 github.com/flanksource/artifacts v1.0.25-0.20260722192852-f8c18d68d065 h1:Y4rmBX6dMHN17QQcvQtS2fCVJzOt5qPMazkvMlffldE=
 github.com/flanksource/artifacts v1.0.25-0.20260722192852-f8c18d68d065/go.mod h1:9XMBq5fUOQMUIB5s6Yr9/D8p7uxWTcTLJ90zP8Ameu4=
+github.com/flanksource/artifacts v1.0.25-0.20260727083453-cf0a78cb7742 h1:MpTAj5DhAacQyzBAUBdHufHPUg/eIarnxMp9ll/jy54=
+github.com/flanksource/artifacts v1.0.25-0.20260727083453-cf0a78cb7742/go.mod h1:S9b4sUF44/mHXYi3sBY7fhH2uMiWv4DI0t9lEji4Apk=
 github.com/flanksource/clicky v1.21.32 h1:FtsA+ri3Yc4lOtAioNwINfNzA8Y4jmoiUIdGPP8m658=
 github.com/flanksource/clicky v1.21.32/go.mod h1:uBNJGvYzz3+RLSA9IXod4oVLs5QV7PBQ3WBpeW9Xs0E=
 github.com/flanksource/clicky v1.21.40 h1:96JqmjBSNe3nTRM43KBLrAXLE2e5OIK7X4uy9Dub8Co=
@@ -336,8 +340,12 @@ github.com/flanksource/clicky v1.21.43 h1:xQxHUDyKQdRFTQfhGAk5G6j2r9Du2Qq1Gfn+T7
 github.com/flanksource/clicky v1.21.43/go.mod h1:wxgvRVic4B8cWCxQ7EO57Q6zBnV49VUoGJ0i9SMdVt4=
 github.com/flanksource/clicky v1.21.48 h1:yCbCk6rDEgtxdknuQV6uZLsvVqCPGYNO7dHuLgbtOp4=
 github.com/flanksource/clicky v1.21.48/go.mod h1:2gAph3Uy90AYirGmkEP/D4okiFZlrH2XdcoXf69oZHY=
+github.com/flanksource/clicky v1.21.54 h1:FZUh4GjcbnR6yh7qhdZb9Y1H2TXwlUfIfslMD+EJ14o=
+github.com/flanksource/clicky v1.21.54/go.mod h1:eonv42hF6W1IPjQXOL6roBm/nHCYNomqc3Kps2E3RZE=
 github.com/flanksource/commons v1.53.1 h1:WiMvY9XGG//L4ndYKTcmp0NjWXg4B7Wbn4hYWkITUmY=
 github.com/flanksource/commons v1.53.1/go.mod h1:ZII22jIDJ3fd/Mz7l0SzLFEv8aoSUg+xwfJAAVf8up4=
+github.com/flanksource/commons v1.55.0 h1:gj9zBY3V1qgAAnEiLaeGbkqCmNK0p1tJVQCDurdTZ2k=
+github.com/flanksource/commons v1.55.0/go.mod h1:gupTCRqGpgD8dd2ooE7bMDJxkfcVKvkPVuHg3cWkW+Q=
 github.com/flanksource/commons-db v0.1.13 h1:ds+QRLiiFtHk7ewEfQoaGcBcXqcJxG0qW7yploLbrr8=
 github.com/flanksource/commons-db v0.1.13/go.mod h1:EGQjugWW+QYvZcBhleb9QzDs1xhNrezf9V1NKsofQ6g=
 github.com/flanksource/commons-db v0.1.20 h1:wk0ezM7oq0mQcKA+DW6DKKTuDHqgmCQkAu7ddxhd7M8=
@@ -346,6 +354,8 @@ github.com/flanksource/commons-db v0.1.21 h1:CC9Qxsg/jI6vnK5u61G/nuYkfbBwr3718eJ
 github.com/flanksource/commons-db v0.1.21/go.mod h1:Td/fCQmw3S0hBVBHI/6pjE/xk4KB91/FI/V1QMcHV8U=
 github.com/flanksource/commons-db v0.1.22 h1:VF1oAVwMtTbK4Le8vxza/ICC5efRWWpi6BqKJvGrM58=
 github.com/flanksource/commons-db v0.1.22/go.mod h1:pdeJF+cRK2rehJcDJBnth8VNG+0BFQb8jBbXxsDL+EI=
+github.com/flanksource/commons-db v0.1.27 h1:F6g5EY2pbK1qO/S6iewuk+VvYw7rdfp0xH9aiFP2AEU=
+github.com/flanksource/commons-db v0.1.27/go.mod h1:7zw8o/HLP/sTTAzb+7NHa50Iy8FIOevUjan+900MnBc=
 github.com/flanksource/commons-test v0.1.14 h1:/gfcR2OweJ+Th7OvyJbwKZNYmrlOik//+aYMXM7sMBk=
 github.com/flanksource/commons-test v0.1.14/go.mod h1:tggThXQWjdZI0MDAOa8r70oHpl3d+G4U3+r/3aD6+dc=
 github.com/flanksource/commons-test v0.1.15 h1:YmGO7jeaFdbyfJCWpzIJNxU8j4b3QNPwfLT/5UoaUck=
@@ -354,12 +364,18 @@ github.com/flanksource/deps v1.0.35 h1:tHxhkJSsJBWRmx7lR/X1rI8diz6tu0dsGb7GCROfu
 github.com/flanksource/deps v1.0.35/go.mod h1:2YRfP32WZrMxGVMYV51RlVHZfgerxf8DT3TqSgjzmTQ=
 github.com/flanksource/deps v1.0.36 h1:bC09I8T5jX4nvKAFmzLx6Wl0+UfQNneRcWxNQ6hmjc0=
 github.com/flanksource/deps v1.0.36/go.mod h1:NvSfoROQeX2VsXsQgQ006934GiwFzT0poVjyJQy871M=
+github.com/flanksource/deps v1.0.37 h1:L+hMyeVChva6mF/LzrFj9MPlvYf0O1H7cB2kXDNIcUs=
+github.com/flanksource/deps v1.0.37/go.mod h1:w9Lt+FOK1yrRXEQPmzQbCMpLyEejWI43J4uzokW47iQ=
 github.com/flanksource/duty v1.0.1347 h1:iHlDtYPhm5UKmBU8s66k4Skq/ny20UkUxnW90pIqMSI=
 github.com/flanksource/duty v1.0.1347/go.mod h1:sk3nPKqdhu2m5kvlxTx14+gKjj6XJgykyQcGHeZRcKM=
 github.com/flanksource/duty v1.0.1352 h1:BEHlbbs91szHLfTkwXTSvKEwirGqC1Mdbn3u6QxKq1o=
 github.com/flanksource/duty v1.0.1352/go.mod h1:Hpj7YMhx8BhpHauVTUOQmCRkgsQeBFsOd3YkTq8MCZ4=
+github.com/flanksource/duty v1.0.1359 h1:KclkzUF/1mzxcO95eh4sTA5C3LMkh3zNWnVyiQqcwXA=
+github.com/flanksource/duty v1.0.1359/go.mod h1:gOV6SUzqpkwE1Wj7+/qOL5peBYUsh5ccm2JE6m/0wNE=
 github.com/flanksource/gomplate/v3 v3.24.84 h1:UOE0yCJsczTIKRaHUvhD6tjCYrbNvOugAizuy0FVlhE=
 github.com/flanksource/gomplate/v3 v3.24.84/go.mod h1:NMMZkFsjbLy/8iY8Fip5N86Y0PP6lZeq+kmPwpVVIL0=
+github.com/flanksource/gomplate/v3 v3.24.86 h1:uwkZSRF8vkwvNwzZDXlCqHoqNtmjqI8eOZY1016bp/s=
+github.com/flanksource/gomplate/v3 v3.24.86/go.mod h1:T0rjeFoG+nb2u11qRKOsTwiEORCvcZ/AZQ0jdHSE/pE=
 github.com/flanksource/is-healthy v1.0.88 h1:ATQuKoNdp8Qfzf41/eMFajmT0qzOmZlZNG5eLK41RFo=
 github.com/flanksource/is-healthy v1.0.88/go.mod h1:faa7yhEtdftTiMxg9Cp2bZ/fGaaB04KSjEm+bkghyY0=
 github.com/flanksource/kubectl-neat v1.0.4 h1:t5/9CqgE84oEtB0KitgJ2+WIeLfD+RhXSxYrqb4X8yI=
@@ -881,6 +897,8 @@ go.opentelemetry.io/auto/sdk v1.2.1 h1:jXsnJ4Lmnqd11kwkBV2LgLoFMZKizbCi5fNZ/ipaZ
 go.opentelemetry.io/auto/sdk v1.2.1/go.mod h1:KRTj+aOaElaLi+wW1kO/DZRXwkF4C5xPbEe3ZiIhN7Y=
 go.opentelemetry.io/contrib/detectors/gcp v1.42.0 h1:kpt2PEJuOuqYkPcktfJqWWDjTEd/FNgrxcniL7kQrXQ=
 go.opentelemetry.io/contrib/detectors/gcp v1.42.0/go.mod h1:W9zQ439utxymRrXsUOzZbFX4JhLxXU4+ZnCt8GG7yA8=
+go.opentelemetry.io/contrib/detectors/gcp v1.43.0 h1:62yY3dT7/ShwOxzA0RsKRgshBmfElKI4d/Myu2OxDFU=
+go.opentelemetry.io/contrib/detectors/gcp v1.43.0/go.mod h1:RyaZMFY7yi1kAs45S6mbFGz8O8rqB0dTY14uzvG4LCs=
 go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.67.0 h1:yI1/OhfEPy7J9eoa6Sj051C7n5dvpj0QX8g4sRchg04=
 go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.67.0/go.mod h1:NoUCKYWK+3ecatC4HjkRktREheMeEtrXoQxrqYFeHSc=
 go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.69.0 h1:8tvICD4vSTOOsNrsI4Ljf6C+6UKvpTEH5XY3JMoyPoo=
@@ -1101,6 +1119,8 @@ google.golang.org/genproto/googleapis/rpc v0.0.0-20260622175928-b703f567277d h1:
 google.golang.org/genproto/googleapis/rpc v0.0.0-20260622175928-b703f567277d/go.mod h1:4Hqkh8ycfw05ld/3BWL7rJOSfebL2Q+DVDeRgYgxUU8=
 google.golang.org/grpc v1.81.1 h1:VnnIIZ88UzOOKLukQi+ImGz8O1Wdp8nAGGnvOfEIWQQ=
 google.golang.org/grpc v1.81.1/go.mod h1:xGH9GfzOyMTGIOXBJmXt+BX/V0kcdQbdcuwQ/zNw42I=
+google.golang.org/grpc v1.82.1 h1:NnAxzGRA0677vCa4BUkOAnO5+FfQqVl9iUXeD0IqcGE=
+google.golang.org/grpc v1.82.1/go.mod h1:yzTZ1TB1Z3SG+LIYaI+WiE8D5+PZ3ArnrSp8zF3+/ZA=
 google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af h1:+5/Sw3GsDNlEmu7TfklWKPdQ0Ykja5VEmq2i817+jbI=
 google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af/go.mod h1:HTf+CrKn2C3g5S8VImy6tdcUvCska2kB7j23XfzDpco=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
