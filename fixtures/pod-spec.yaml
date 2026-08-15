@@ -1,0 +1,59 @@
+apiVersion: batch.flanksource.com/v1
+kind: BatchTrigger
+metadata:
+  name: test-pod-spec
+spec:
+  sqs:
+    queue: arn:aws:sqs:us-east-1:000000000000:test-batch-runner-pod-spec
+    endpoint: http://localstack:4566
+    accessKey:
+      value: test
+    secretKey:
+      value: test
+    region: us-east-1
+    raw: false
+  pod:
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: test-pod-spec
+      namespace: default
+      labels:
+        app: '{{.pod_label}}'
+        batch-runner: "true"
+      annotations:
+        example.com/static: "test-annotation"
+        example.com/dynamic: '{{.annotation_value}}'
+    spec:
+      tolerations:
+      - key: "dedicated"
+        operator: "Equal"
+        value: "batch"
+        effect: "NoSchedule"
+      nodeSelector:
+        kubernetes.io/os: linux
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+      serviceAccountName: default
+      initContainers:
+      - name: init-setup
+        image: busybox:latest
+        command: ["sh", "-c", "echo init done"]
+      containers:
+      - name: busybox
+        image: busybox:latest
+        command: ["sleep", "infinity"]
+        env:
+        - name: STATIC_ENV
+          value: "static-value"
+        - name: DYNAMIC_ENV
+          value: '{{.env_value}}'
+        resources:
+          limits:
+            cpu: "100m"
+            memory: "64Mi"
+          requests:
+            cpu: "50m"
+            memory: "32Mi"
