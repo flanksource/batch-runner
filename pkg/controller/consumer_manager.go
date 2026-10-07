@@ -8,6 +8,7 @@ import (
 	v1 "github.com/flanksource/batch-runner/pkg/apis/batch/v1"
 	"github.com/flanksource/batch-runner/pkg"
 	dutyctx "github.com/flanksource/duty/context"
+	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/types"
 )
 
@@ -95,6 +96,10 @@ func (m *ConsumerManager) Start(key types.NamespacedName, config *v1.Config) err
 		return nil
 	}
 
+	// Callers pass a pointer into an object they continue to use; keep a private
+	// copy so the running consumer and configChanged see the spec it started with.
+	config = config.DeepCopy()
+
 	ctx, cancel := context.WithCancel(m.rootCtx)
 	stats := &ConsumerStats{
 		ConnectionState: ConnectionStateStarting,
@@ -175,7 +180,7 @@ func (m *ConsumerManager) UpdateConfig(key types.NamespacedName, newConfig *v1.C
 }
 
 func configChanged(old, new *v1.Config) bool {
-	return old.String() != new.String()
+	return !equality.Semantic.DeepEqual(old, new)
 }
 
 func (m *ConsumerManager) StopAll() {
