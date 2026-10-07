@@ -3,10 +3,13 @@ package controller
 import (
 	"context"
 	"testing"
+	"time"
 
 	v1 "github.com/flanksource/batch-runner/pkg/apis/batch/v1"
+	"github.com/flanksource/duty/connection"
 	dutyctx "github.com/flanksource/duty/context"
 	dutyps "github.com/flanksource/duty/pubsub"
+	dutytypes "github.com/flanksource/duty/types"
 	. "github.com/onsi/gomega"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -168,6 +171,36 @@ func TestReconcileReactsToSpecUpdates(t *testing.T) {
 		g.Expect(after).ToNot(BeNil())
 		g.Expect(after).ToNot(BeIdenticalTo(before), "consumer should be restarted after a spec change")
 		g.Expect(after.config.Memory.QueueName).To(Equal("queue-name-v2"))
+	})
+
+	// Subscribe fills in SQS defaults and resolved credentials on the config it
+	// is given. Those must not register as a spec change, or every reconcile
+	// would restart the consumer and abandon any message it is receiving.
+	t.Run("unchanged SQS spec does not restart consumer after subscribing", func(t *testing.T) {
+		g := NewWithT(t)
+		trigger := newJobTrigger("sqs-unchanged", "worker:v1")
+		trigger.Spec.Memory = nil
+		trigger.Spec.SQS = &dutyps.SQSConfig{
+			QueueArn: "arn:aws:sqs:us-east-1:000000000000:sqs-unchanged",
+			AWSConnection: connection.AWSConnection{
+				AccessKey: dutytypes.EnvVar{ValueStatic: "test"},
+				SecretKey: dutytypes.EnvVar{ValueStatic: "test"},
+				Region:    "us-east-1",
+				Endpoint:  "http://127.0.0.1:1",
+			},
+		}
+		_, r, req := setup(t, trigger)
+
+		_, err := r.Reconcile(context.Background(), req)
+		g.Expect(err).ToNot(HaveOccurred())
+		before := runningConsumer(r.Manager, req.NamespacedName)
+		g.Expect(before).ToNot(BeNil())
+
+		g.Consistently(func() *ManagedConsumer {
+			_, err := r.Reconcile(context.Background(), req)
+			g.Expect(err).ToNot(HaveOccurred())
+			return runningConsumer(r.Manager, req.NamespacedName)
+		}).WithTimeout(time.Second).WithPolling(100 * time.Millisecond).Should(BeIdenticalTo(before))
 	})
 
 	// The reconciler requeues every 30s, so an unchanged spec must not restart

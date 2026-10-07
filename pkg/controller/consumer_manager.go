@@ -96,10 +96,6 @@ func (m *ConsumerManager) Start(key types.NamespacedName, config *v1.Config) err
 		return nil
 	}
 
-	// Callers pass a pointer into an object they continue to use; keep a private
-	// copy so the running consumer and configChanged see the spec it started with.
-	config = config.DeepCopy()
-
 	ctx, cancel := context.WithCancel(m.rootCtx)
 	stats := &ConsumerStats{
 		ConnectionState: ConnectionStateStarting,
@@ -107,7 +103,7 @@ func (m *ConsumerManager) Start(key types.NamespacedName, config *v1.Config) err
 
 	managed := &ManagedConsumer{
 		cancel:    cancel,
-		config:    config,
+		config:    config.DeepCopy(),
 		stats:     stats,
 		startedAt: time.Now(),
 	}
@@ -120,9 +116,14 @@ func (m *ConsumerManager) Start(key types.NamespacedName, config *v1.Config) err
 		OnConnectionChange: stats.SetConnectionState,
 	}
 
+	// The consumer gets its own copy because subscribing writes defaults and
+	// resolved credentials into the queue config. The copy kept on managed must
+	// stay identical to the spec it was started from for configChanged to work.
+	runConfig := config.DeepCopy()
+
 	go func() {
 		stats.SetConnectionState(ConnectionStateConnected)
-		err := pkg.RunConsumerWithCallbacks(m.rootCtx.Wrap(ctx), config, callbacks)
+		err := pkg.RunConsumerWithCallbacks(m.rootCtx.Wrap(ctx), runConfig, callbacks)
 		if err != nil && ctx.Err() == nil {
 			stats.SetConnectionState(ConnectionStateError)
 			stats.RecordFailed(err)
