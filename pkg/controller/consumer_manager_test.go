@@ -124,5 +124,10 @@ func TestConsumerManagerUnit(t *testing.T) {
 
 		Expect(configChanged(config1, config2)).To(BeTrue())
 		Expect(configChanged(config1, config1)).To(BeFalse())
+		Expect(configChanged(config1, config1.DeepCopy())).To(BeFalse())
+
+		imageChanged := config1.DeepCopy()
+		imageChanged.Pod.Spec.Containers[0].Image = "busybox:latest"
+		Expect(configChanged(config1, imageChanged)).To(BeTrue())
 	})
 }
